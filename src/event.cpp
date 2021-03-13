@@ -25,10 +25,10 @@ sf::Packet& operator >>(sf::Packet& packet, HelloResponse& p) {
 }
 
 sf::Packet& operator <<(sf::Packet& packet, const PlayerPos& p) {
-    return packet << p.player_id << p.pos;
+    return packet << p.player_id << p.pos << p.look_dir;
 }
 sf::Packet& operator >>(sf::Packet& packet, PlayerPos& p) {
-    return packet >> p.player_id >> p.pos;
+    return packet >> p.player_id >> p.pos >> p.look_dir;
 }
 
 sf::Packet& operator <<(sf::Packet& packet, const BulletShot& b) {
@@ -114,6 +114,7 @@ static void test_player_pos_event() {
     PlayerPos pos;
     pos.player_id = 456;
     pos.pos = {7, 8};
+    pos.look_dir = {1, 2};
 
     Event e;
     e.tick = 123;
@@ -131,6 +132,7 @@ static void test_player_pos_event() {
     assert(deser.tick == 123);
     assert(std::get<PlayerPos>(deser.content).player_id == pos.player_id);
     assert(std::get<PlayerPos>(deser.content).pos == pos.pos);
+    assert(std::get<PlayerPos>(deser.content).look_dir == pos.look_dir);
 }
 
 static void test_hello_event() {

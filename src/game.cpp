@@ -11,6 +11,7 @@
 #include "event.hpp"
 #include "config.hpp"
 #include "gameconfig.hpp"
+#include "utils.hpp"
 
 void try_receiveing_events(std::vector<Event>&, std::unique_ptr<sf::UdpSocket>&);
 void send_our_events(std::vector<Event>&, GameConfig&, std::unique_ptr<sf::UdpSocket>&);
@@ -114,7 +115,9 @@ void send_our_events(std::vector<Event>& our_events, GameConfig& config,
 }
 
 std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, u64 player_id) {
-    // vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
+    vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
+    vec2f window_center = vec2f(window.getSize())/2.f;
+    vec2f look_dir = normalize(mouse_pos - window_center);
 
     vec2f moving_dir(0.0f, 0.0f);
 
@@ -150,7 +153,8 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 			.tick = 3,
 			.content = PlayerPos {
 				.player_id = player_id,
-				.pos = my_new_pos
+				.pos = my_new_pos,
+                .look_dir = look_dir
 			}
 		});
 	}

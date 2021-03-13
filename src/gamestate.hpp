@@ -17,6 +17,7 @@ struct GameState {
                 PlayerPos player_pos = std::get<PlayerPos>(event.content);
 
                 players[player_pos.player_id].pos = player_pos.pos;
+                players[player_pos.player_id].look_dir = player_pos.look_dir;
             }
         }
     }

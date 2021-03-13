@@ -90,15 +90,20 @@ struct GameDrawer {
 			//NOTE(Stanisz): head
             shape.setPosition(player.pos);
 			shape.setRadius(20.0f);
+			shape.setOrigin(20.f, 20.f);
             window.draw(shape);
 			
 			//NOTE(Stanisz): arms
 			//TODO: arms should be oriented around the facing direction
-            shape.setPosition(player.pos + vec2f(25.0f, 0.0f));
+
+			auto ortho = vec2f(player.look_dir.y, -player.look_dir.x);
+            shape.setPosition(player.pos + 15.0f * player.look_dir + 15.0f * ortho);
 			shape.setRadius(10.0f);
+			shape.setOrigin(10, 10);
             window.draw(shape);
-            shape.setPosition(player.pos - vec2f(5.0f, 0.0f));
+            shape.setPosition(player.pos + 15.0f * player.look_dir - 15.0f * ortho);
 			shape.setRadius(10.0f);
+			shape.setOrigin(10, 10);
             window.draw(shape);
         }
 
