@@ -11,10 +11,16 @@ RELEASE_OBJS = $(SRCS:%=build/release/%.o)
 
 -include $(shell find build -name '*.d')
 
-debug: $(DEBUG_OBJS)
+debug:
+	$(MAKE) -j 128 wrapperdebug
+
+wrapperdebug: $(DEBUG_OBJS)
 	g++ $(DEBUG_OBJS) -o game $(CPP_FLAGS) $(DEBUG_FLAGS) $(INCLUDE_FLAGS) $(LD_FLAGS)
 
-release: $(RELEASE_OBJS)
+release:
+	$(MAKE) -j 128 wrapperrelease
+
+wrapperrelease: $(RELEASE_OBJS)
 	g++ $(RELEASE_OBJS) -o game $(CPP_FLAGS) $(RELEASE_FLAGS) $(INCLUDE_FLAGS) $(LD_FLAGS)
 
 build/debug/%.cpp.o: %.cpp
