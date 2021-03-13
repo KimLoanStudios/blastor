@@ -86,6 +86,7 @@ struct GameDrawer {
 
         for(auto&& [player_id, player] : game_state.players) {
 			shape.setFillColor(sf::Color::Green);
+			shape.setScale(1.0f, 1.0f);
 
 			//NOTE(Stanisz): head
             shape.setPosition(player.pos);
@@ -106,6 +107,14 @@ struct GameDrawer {
 			shape.setOrigin(10, 10);
             window.draw(shape);
         }
+
+
+        for(auto&& [bullet_id, bullet] : game_state.bullets) {
+			shape.setScale(0.5f, 2.0f);
+			shape.setPosition(bullet.pos);
+			shape.setFillColor(sf::Color(255, 0, 0, 255));
+			window.draw(shape);
+		}
 
         window.display();
     }
