@@ -19,7 +19,7 @@ struct GameDrawer {
 		bg_color = sf::Color(0xfa, 0xba, 0xba, 0xfa);
 
 		auto win_sz = window.getSize();
-		dirt_tex.create(win_sz.x, win_sz.y);
+		dirt_tex.create(win_sz.x * 2, win_sz.y * 2);
 
 		unsigned pixels_dimensions = dirt_tex.getSize().x * 
 			dirt_tex.getSize().y;
@@ -32,16 +32,16 @@ struct GameDrawer {
 
 		for (int i = 0; i < n_metaballs; ++i)
 		{
-			metaballs_positions[i].x = rand() % win_sz.x;
-			metaballs_positions[i].y = rand() % win_sz.y;
+			metaballs_positions[i].x = rand() % dirt_tex.getSize().x;
+			metaballs_positions[i].y = rand() % dirt_tex.getSize().y;
 			
 			metaballs_sizes[i] = 200 + rand() % 300;
 		}
 
 		for (unsigned i = 0; i < pixels_dimensions; ++i)
 		{
-			unsigned x_pixel = i % win_sz.x;
-			unsigned y_pixel = i / win_sz.y;
+			unsigned x_pixel = i % dirt_tex.getSize().x;
+			unsigned y_pixel = i / dirt_tex.getSize().y;
 			sf::Color color = bg_color;
 
 			float total_factor = 0;
@@ -75,6 +75,7 @@ struct GameDrawer {
 
     void draw(GameState& game_state, sf::RenderWindow& window, u64 player_id) {
 		vec2f player_pos = game_state.players[player_id].pos;
+		dirt.setPosition(player_pos.x - dirt_tex.getSize().x / 2, player_pos.y - dirt_tex.getSize().y / 2);
 		create_view(window, player_pos);
 
         window.clear();
