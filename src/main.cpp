@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "event.hpp"
 #include "server.hpp"
 #include <string.h>
 
@@ -9,6 +10,10 @@ int main(int argc, const char* argv[]) {
 
     if(strcmp(argv[1], "--server") == 0) {
         run_server(argc, argv);
+    }
+
+    if(strcmp(argv[1], "--test") == 0) {
+        test_event_serialization();
     }
 
     return 0;

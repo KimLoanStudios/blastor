@@ -2,15 +2,15 @@
 #include <cstdint>
 #include <SFML/Graphics.hpp>
 
-using u8 = uint8_t;
-using u16 = uint16_t;
-using u32 = uint32_t;
-using u64 = uint64_t;
+using u8 = sf::Uint8;
+using u16 = sf::Uint16;
+using u32 = sf::Uint32;
+using u64 = sf::Uint64;
 
-using i8 = int8_t;
-using i16 = int16_t;
-using i32 = int32_t;
-using i64 = int64_t;
+using i8 = sf::Int8;
+using i16 = sf::Int16;
+using i32 = sf::Int32;
+using i64 = sf::Int64;
 
 using f32 = float;
 using f64 = double;
