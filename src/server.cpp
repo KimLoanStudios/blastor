@@ -35,11 +35,14 @@ struct Peers {
 };
 
 struct Server {
-    std::vector<Event> events;
     sf::UdpSocket sock;
     u16 port;
+
     GameState game_state;
+    std::vector<Event> events;
     Peers peers;
+
+    u32 tick = 0;
 
     Server(u16 _port) : port(_port) {}
 
@@ -66,9 +69,13 @@ struct Server {
                 handle_packet(pack, {remote_addr, remote_port});
             }
 
+            flush_events();
+
             auto elapsed = clock.restart().asSeconds();
             auto toSleep = std::max(TICK_TIME - elapsed, 0.f);
             sf::sleep(sf::seconds(toSleep));
+
+            tick++;
         }
     }
 
@@ -108,9 +115,17 @@ struct Server {
     }
 
     void handle_event(HelloResponse h, SockAddr addr) {
+        std::cout << "received hello response\n" <<
+            "   addr = " << addr.first << ":" << addr.second << std::endl;
     }
 
-    void handle_event(PlayerPos h, SockAddr addr) {
+    void handle_event(PlayerPos pp, SockAddr addr) {
+        auto event = Event {
+            .tick = tick,
+            .content = pp,
+        };
+
+        events.push_back(event);
     }
 
     void handle_event(BulletShot h, SockAddr addr) {
@@ -120,6 +135,16 @@ struct Server {
         sf::Packet pkt;
         pkt << event;
         sock.send(pkt, to.first, to.second);
+    }
+
+    void flush_events() {
+        for (auto &peer : peers.peers) {
+            for (auto &event : events) {
+                send_event(event, peer.first);
+            }
+        }
+
+        events.clear();
     }
 };
 
