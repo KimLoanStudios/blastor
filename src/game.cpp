@@ -11,7 +11,7 @@
 
 void try_receiveing_events(std::vector<Event>& cur_events);
 void send_our_events(std::vector<Event>& our_events);
-std::vector<Event> handle_input(GameState& game_state, std::map<sf::Keyboard::Key, bool>& pressed_keys);
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window);
 
 int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__((unused))) {
     std::cout << "Running game!\n";
@@ -72,7 +72,7 @@ int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__(
             game_state.apply_events(events);
             events.clear();
 
-            std::vector<Event> our_events = handle_input(game_state, pressed_keys);
+            std::vector<Event> our_events = handle_input(game_state, window);
 
             game_state.apply_events(our_events);
 
@@ -93,25 +93,22 @@ void send_our_events(std::vector<Event>& our_events) {
     // TODO
 }
 
-std::vector<Event> handle_input(GameState& game_state, std::map<sf::Keyboard::Key, bool>& pressed_keys) {
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window) {
+    // vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
+
     vec2f moving_dir(0.0f, 0.0f);
 
-    if (pressed_keys[sf::Keyboard::W])
-    {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         moving_dir += vec2f(0.0f, -1.0f);
-    }
-    if (pressed_keys[sf::Keyboard::D])
-    {
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         moving_dir += vec2f(1.0f, 0.0f);
-    }
-    if (pressed_keys[sf::Keyboard::A])
-    {
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         moving_dir += vec2f(-1.0f, 0.0f);
-    }
-    if (pressed_keys[sf::Keyboard::S])
-    {
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         moving_dir += vec2f(0.0f, 1.0f);
-    }
 		
     float moving_dir_len = (float)moving_dir.x * moving_dir.x + moving_dir.y * moving_dir.y;
     moving_dir_len = sqrt(moving_dir_len);

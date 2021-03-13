@@ -5,6 +5,7 @@
 
 struct Player {
     vec2f pos;
+    vec2f look_dir;
 };
 
 struct GameState {
