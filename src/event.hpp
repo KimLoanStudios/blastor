@@ -2,11 +2,6 @@
 #include "types.hpp"
 #include <variant>
 
-struct Event {
-    u64 tick;
-    EventVariant content;
-};
-
 struct PlayerPos {
     u64 player_id;
     f32 x;
@@ -21,3 +16,9 @@ struct BulletShot {
 };
 
 using EventVariant = std::variant<PlayerPos, BulletShot>;
+
+struct Event {
+    u64 tick;
+    EventVariant content;
+};
+
