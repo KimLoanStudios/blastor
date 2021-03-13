@@ -110,7 +110,7 @@ struct GameDrawer {
 
 
         for(auto&& [bullet_id, bullet] : game_state.bullets) {
-			shape.setScale(0.5f, 2.0f);
+			//shape.setScale(0.5f, 2.0f);
 			shape.setPosition(bullet.pos);
 			shape.setFillColor(sf::Color(255, 0, 0, 255));
 			window.draw(shape);

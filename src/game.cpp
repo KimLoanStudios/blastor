@@ -5,6 +5,7 @@
 #include <vector>
 #include <variant>
 #include <cstring>
+#include <random>
 
 #include "gamestate.hpp"
 #include "gamedrawer.hpp"
@@ -15,7 +16,7 @@
 
 void try_receiveing_events(std::vector<Event>&, std::unique_ptr<sf::UdpSocket>&);
 void send_our_events(std::vector<Event>&, GameConfig&, std::unique_ptr<sf::UdpSocket>&);
-std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, u64);
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, u64, bool, u64);
 std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config);
 
 int run_game(GameConfig& config) {
@@ -40,7 +41,11 @@ int run_game(GameConfig& config) {
 
     sf::Clock tick_clock;
 
-	std::map<sf::Keyboard::Key, bool> pressed_keys;
+    bool wasclick = false;
+
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dis;
 
     while (window.isOpen())
     {
@@ -64,13 +69,11 @@ int run_game(GameConfig& config) {
 				{
 					window.close();
 				}
+			}
 
-				pressed_keys[event.key.code] = 1;
-			}
-			if (event.type == sf::Event::KeyReleased)
-			{
-				pressed_keys[event.key.code] = 0;
-			}
+            if(event.type == sf::Event::MouseButtonPressed) {
+                wasclick = true;
+            }
         }
 
         try_receiveing_events(events, sock);
@@ -81,11 +84,13 @@ int run_game(GameConfig& config) {
             game_state.apply_events(events);
             events.clear();
 
-            std::vector<Event> our_events = handle_input(game_state, window, player_id);
+            std::vector<Event> our_events = handle_input(game_state, window, player_id, wasclick, dis(gen));
 
             game_state.apply_events(our_events);
 
             send_our_events(our_events, config, sock);
+
+            wasclick = false;
         }
 
         game_drawer.draw(game_state, window, player_id);
@@ -114,7 +119,9 @@ void send_our_events(std::vector<Event>& our_events, GameConfig& config,
     }
 }
 
-std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, u64 player_id) {
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, 
+                                u64 player_id, bool wasclick, u64 bullet_id) {
+
     vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
     vec2f window_center = vec2f(window.getSize())/2.f;
     vec2f look_dir = normalize(mouse_pos - window_center);
@@ -158,6 +165,20 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 			}
 		});
 	}
+
+    if(wasclick) {
+        vec2f bullet_pos = my_new_pos + 50.f * look_dir;
+
+        std::cout << "SHOOTOTOTOTOTT id:" << bullet_id << '\n' << std::flush;
+        my_events.push_back(Event {
+            .tick = 3,
+            .content = BulletShot {
+                .bullet_id = bullet_id,
+                .pos = bullet_pos,
+                .direction = look_dir
+            }
+        });
+    }
 
     return my_events;
 }
