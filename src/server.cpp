@@ -21,7 +21,7 @@ struct Peers {
 
     u64 create_peer(SockAddr addr, const std::string& name) {
         // TODO change this to smth better
-        u64 id = std::hash<std::string>{}(name) + addr.second;
+        u64 id = std::max(std::hash<std::string>{}(name) + addr.second, size_t(1));
         auto peer = PeerInfo {
             .name = name,
             .id = id,
@@ -80,9 +80,9 @@ struct Server {
     }
 
     void handle_packet(sf::Packet& pkt, SockAddr addr) {
-        std::cout <<
-            "received packet from " << addr.first << ":" << addr.second << "\n" <<
-            "    length = " << pkt.getDataSize() << std::endl;
+        //std::cout <<
+            //"received packet from " << addr.first << ":" << addr.second << "\n" <<
+            //"    length = " << pkt.getDataSize() << std::endl;
 
         Event event;
         pkt >> event;
@@ -145,12 +145,24 @@ struct Server {
 
     void flush_events() {
         for (auto &peer : peers.peers) {
+            auto peer_id = peer.second.id;
+
             for (auto &event : events) {
-                send_event(event, peer.first);
+                auto owner_id = get_event_owner_id(event);
+                if (owner_id != peer_id) {
+                    send_event(event, peer.first);
+                }
             }
         }
 
         events.clear();
+    }
+
+    u64 get_event_owner_id(const Event& event) {
+        if (std::holds_alternative<PlayerPos>(event.content)) {
+            return std::get<PlayerPos>(event.content).player_id;
+        }
+        return 0;
     }
 };
 
