@@ -106,7 +106,18 @@ struct GameDrawer {
 			shape.setRadius(10.0f);
 			shape.setOrigin(10, 10);
             window.draw(shape);
+
+			sf::Font font;
+			font.loadFromFile("assets/cs.ttf");
+
+			sf::Text text("Pizdusia", font);
+			text.setCharacterSize(30);
+			text.setFillColor(sf::Color::Black);
+			text.setPosition(player.pos + vec2f(-60.0f, -60.0f));
+
+			window.draw(text);
         }
+
 
 
         for(auto&& [bullet_id, bullet] : game_state.bullets) {
