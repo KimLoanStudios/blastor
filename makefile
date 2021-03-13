@@ -3,7 +3,7 @@ DEBUG_FLAGS = -O0 -g -fsanitize=address,undefined
 RELEASE_FLASGS = -O3 -flto
 
 INCLUDE_FLAGS = -I./src
-LD_FLAGS =
+LD_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
 SRCS = $(shell find src -name '*.cpp' -or -name '*.c')
 DEBUG_OBJS = $(SRCS:%=build/debug/%.o)
