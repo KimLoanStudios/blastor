@@ -1,42 +1,63 @@
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <vector>
+#include <cstring>
 
 #include "types.hpp"
+#include "config.hpp"
 #include "event.hpp"
 
-int run_server(int argc __attribute__((unused)), const char* argv[] __attribute__((unused))) {
-    std::cout << "Running server!\n";
 
-    int port = 6969;
-
+struct Server {
+    std::vector<Event> events;
     sf::UdpSocket sock;
-    if (sock.bind(port) != sf::Socket::Done) {
-        std::cerr << "Could not bind socket to port " << port << std::endl;
-        return 1;
-    }
+    u16 port;
 
-    sock.setBlocking(false);
+    Server(u16 _port) : port(_port) {}
 
-    f32 tick = 1.f/32.f;
-    while (true) {
-        sf::Clock clock;
-
-        while (true) {
-            sf::Packet pack;
-            sf::IpAddress remote_addr;
-            unsigned short remote_port;
-
-            auto res = sock.receive(pack, remote_addr, remote_port);
-            if (res != sf::Socket::Done)
-                break;
-
-            //hadle_packer(pack);
+    void run() {
+        if (sock.bind(port) != sf::Socket::Done) {
+            std::cerr << "Could not bind socket to port " << port << std::endl;
+            return;
         }
 
-        auto elapsed = clock.restart().asSeconds();
-        auto toSleep = std::max(tick - elapsed, 0.f);
-        sf::sleep(sf::seconds(toSleep));
+        sock.setBlocking(false);
+
+        while (true) {
+            sf::Clock clock;
+
+            while (true) {
+                sf::Packet pack;
+                sf::IpAddress remote_addr;
+                unsigned short remote_port;
+
+                auto res = sock.receive(pack, remote_addr, remote_port);
+                if (res != sf::Socket::Done)
+                    break;
+
+                //hadle_packer(pack);
+            }
+
+            auto elapsed = clock.restart().asSeconds();
+            auto toSleep = std::max(TICK_TIME - elapsed, 0.f);
+            sf::sleep(sf::seconds(toSleep));
+        }
     }
+};
+
+
+int run_server(int argc, const char* argv[]) {
+    u16 port = SERVER_PORT;
+
+    if (argc == 2 && strcmp(argv[0], "--port") == 0) {
+        port = std::stoi(argv[1]);
+    }
+
+    std::cout << "Running server!\n";
+    std::cout << "port = " << port << std::endl;
+
+    Server srv(port);
+    srv.run();
 
     return 0;
 }
