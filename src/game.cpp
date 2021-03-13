@@ -144,13 +144,16 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 
     std::vector<Event> my_events;
 
-    my_events.push_back(Event {
-        .tick = 3,
-        .content = PlayerPos {
-            .player_id = player_id,
-            .pos = my_new_pos
-        }
-    });
+	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024)
+	{
+		my_events.push_back(Event {
+			.tick = 3,
+			.content = PlayerPos {
+				.player_id = player_id,
+				.pos = my_new_pos
+			}
+		});
+	}
 
     return my_events;
 }

@@ -19,7 +19,7 @@ struct GameDrawer {
 		bg_color = sf::Color(0xfa, 0xba, 0xba, 0xfa);
 
 		auto win_sz = window.getSize();
-		dirt_tex.create(win_sz.x * 2, win_sz.y * 2);
+		dirt_tex.create(1024, 1024);
 
 		unsigned pixels_dimensions = dirt_tex.getSize().x * 
 			dirt_tex.getSize().y;
@@ -75,7 +75,7 @@ struct GameDrawer {
 
     void draw(GameState& game_state, sf::RenderWindow& window, u64 player_id) {
 		vec2f player_pos = game_state.players[player_id].pos;
-		dirt.setPosition(player_pos.x - dirt_tex.getSize().x / 2, player_pos.y - dirt_tex.getSize().y / 2);
+		//dirt.setPosition(player_pos.x - dirt_tex.getSize().x / 2, player_pos.y - dirt_tex.getSize().y / 2);
 		create_view(window, player_pos);
 
         window.clear();
