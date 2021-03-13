@@ -1,4 +1,6 @@
+#pragma once
 #include <cstdint>
+#include <SFML/Graphics.hpp>
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -12,3 +14,5 @@ using i64 = int64_t;
 
 using f32 = float;
 using f64 = double;
+
+using vec2f = sf::Vector2f;
