@@ -1,5 +1,6 @@
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <cmath>
 #include <functional>
 #include <vector>
 #include <span>
@@ -208,6 +209,15 @@ struct Server {
     void handle_event(PlayerRemove, SockAddr ) {
     }
 
+    void handle_event(PlayerStatsChange change, SockAddr ) {
+        auto event = Event {
+            .tick = tick,
+            .content = change,
+        };
+
+        events.push_back(event);
+    }
+
     void send_event(Event event, SockAddr to) {
         sf::Packet pkt;
         pkt << event;
@@ -243,8 +253,9 @@ struct Server {
 
     void logic() {
         for (auto &&[id, bullet] : game_state.bullets) {
+            collide_with_players(bullet);
             //std::cout << "bullet id = " << id << std::endl;
-            auto new_position = bullet.pos + bullet.direction * 100.f * TICK_TIME;
+            auto new_position = bullet.pos + bullet.direction * BULLET_SPEED;
 
             if (std::abs(new_position.x) + std::abs(new_position.y) > 2048) {
                 auto bullet_remove = BulletRemove {
@@ -264,6 +275,33 @@ struct Server {
                 events.push_back(Event {
                     .tick = tick,
                     .content = bullet_pos,
+                });
+            }
+        }
+    }
+
+    void collide_with_players(const Bullet& b) {
+        for (auto &&[id, player] : game_state.players) {
+            if (player.dead)
+                continue;
+
+            auto player_pos = player.pos;
+            auto bullet_pos = b.pos;
+
+            auto diff = player_pos - bullet_pos;
+            auto distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+            if (distance < 15.f) {
+                auto state_change = PlayerStatsChange {
+                    .player_id = id,
+                    .dead = true,
+                    .score = player.score - 1,
+                    .name = player.name,
+                };
+
+                events.push_back(Event{
+                    .tick = tick,
+                    .content = state_change,
                 });
             }
         }

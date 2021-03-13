@@ -1,12 +1,18 @@
 #pragma once
+
 #include <unordered_map>
 #include <span>
+
 #include "types.hpp"
 #include "event.hpp"
 
 struct Player {
     vec2f pos;
     vec2f look_dir;
+
+    bool dead = true;
+    i32 score = 0;
+    std::string name;
 };
 
 struct Bullet {
@@ -45,6 +51,13 @@ struct GameState {
             if (std::holds_alternative<BulletRemove>(event.content)) {
                 auto bp = std::get<BulletRemove>(event.content);
                 bullets.erase(bp.bullet_id);
+            }
+            if (std::holds_alternative<PlayerStatsChange>(event.content)) {
+                auto s = std::get<PlayerStatsChange>(event.content);
+                Player& player = players[s.player_id];
+                player.dead = s.dead;
+                player.score = s.score;
+                player.name = s.name;
             }
         }
     }
