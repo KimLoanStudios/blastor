@@ -46,13 +46,20 @@ struct BulletRemove {
 sf::Packet& operator <<(sf::Packet& packet, const BulletRemove& b);
 sf::Packet& operator >>(sf::Packet& packet, BulletRemove& b);
 
+struct PlayerRemove {
+    u64 player_id;
+};
+sf::Packet& operator <<(sf::Packet& packet, const PlayerRemove& b);
+sf::Packet& operator >>(sf::Packet& packet, PlayerRemove& b);
+
 using EventVariant = std::variant<
     PlayerPos,
     BulletShot,
     Hello,
     HelloResponse,
     BulletPos,
-    BulletRemove
+    BulletRemove,
+    PlayerRemove
 >;
 
 struct Event {

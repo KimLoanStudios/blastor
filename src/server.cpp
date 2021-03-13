@@ -1,5 +1,6 @@
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <functional>
 #include <vector>
 #include <cstring>
 
@@ -13,24 +14,54 @@ using SockAddr = std::pair<sf::IpAddress, u16>;
 struct PeerInfo {
     std::string name;
     u64 id;
+    u32 tick_of_last_event;
 };
 
 struct Peers {
     std::map<SockAddr, PeerInfo> peers;
     std::map<u64, SockAddr> id_to_addr;
 
-    u64 create_peer(SockAddr addr, const std::string& name) {
+    using PeerRemovalCallback = std::function<void(const PeerInfo&)>;
+
+    u64 create_peer(SockAddr addr, const std::string& name, u32 tick) {
         // TODO change this to smth better
         u64 id = std::max(std::hash<std::string>{}(name) + addr.second, size_t(1));
         auto peer = PeerInfo {
             .name = name,
             .id = id,
+            .tick_of_last_event = tick,
         };
 
         peers[addr] = peer;
         id_to_addr[id] = addr;
 
         return id;
+    }
+
+    void remove_inactive_peers(u32 tick, PeerRemovalCallback on_removal) {
+        for (auto it = peers.cbegin(); it != peers.cend() /* not hoisted */; /* no increment */) {
+            auto peer_info = it->second;
+
+            bool must_delete = false;
+            if (peer_info.tick_of_last_event + max_inactive_ticks < tick) {
+                must_delete = true;
+            }
+
+
+            if (must_delete) {
+                id_to_addr.erase(peer_info.id);
+                on_removal(peer_info);
+                peers.erase(it++);    // or "it = m.erase(it)" since C++11
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    void keep_peer_alive(u32 tick, u64 peer_id) {
+        if (id_to_addr.find(peer_id) != id_to_addr.end()) {
+            peers[id_to_addr[peer_id]].tick_of_last_event = tick;
+        }
     }
 };
 
@@ -69,6 +100,19 @@ struct Server {
                 handle_packet(pack, {remote_addr, remote_port});
             }
 
+            Peers::PeerRemovalCallback on_peer_removal = [this](const PeerInfo& info){
+                auto removal = PlayerRemove {
+                    .player_id = info.id,
+                };
+                auto event = Event {
+                    .tick = tick,
+                    .content = removal,
+                };
+                std::cout << "removing id = " << info.id << " tick " << tick << " last " << info.tick_of_last_event << std::endl;
+
+                events.push_back(event);
+            };
+            peers.remove_inactive_peers(tick, on_peer_removal);
             flush_events();
 
             auto elapsed = clock.restart().asSeconds();
@@ -97,7 +141,8 @@ struct Server {
             "    username = " << h.username << "\n" <<
             "    addr = " << addr.first << ":" << addr.second << std::endl;
 
-        auto id = peers.create_peer(addr, h.username);
+        auto id = peers.create_peer(addr, h.username, tick);
+        peers.keep_peer_alive(tick, id);
 
         std::cout << "    assigning id = " << id << std::endl;
 
@@ -125,6 +170,8 @@ struct Server {
             .content = pp,
         };
 
+        peers.keep_peer_alive(tick, pp.player_id);
+
         events.push_back(event);
     }
 
@@ -135,6 +182,9 @@ struct Server {
     }
 
     void handle_event(BulletRemove, SockAddr ) {
+    }
+
+    void handle_event(PlayerRemove, SockAddr ) {
     }
 
     void send_event(Event event, SockAddr to) {
@@ -149,6 +199,7 @@ struct Server {
 
             for (auto &event : events) {
                 auto owner_id = get_event_owner_id(event);
+                peers.keep_peer_alive(tick, owner_id);
                 if (owner_id != peer_id) {
                     send_event(event, peer.first);
                 }

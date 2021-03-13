@@ -13,13 +13,14 @@ int main(int argc, const char* argv[]) {
 
             if(strcmp(argv[1], "--test") == 0) {
                 test_event_serialization();
+                return 0;
             }
         }
 
         // Else run game
         GameConfig game_config(argc - 1, argv + 1);
         return run_game(game_config);
-        
+
     } catch(std::exception& e) {
         std::cout << "OH NO: " << e.what() << '\n';
         return 1;

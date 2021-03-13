@@ -52,6 +52,13 @@ sf::Packet& operator >>(sf::Packet& packet, BulletRemove& b) {
     return packet >> b.bullet_id;
 }
 
+sf::Packet& operator <<(sf::Packet& packet, const PlayerRemove& b) {
+    return packet << b.player_id;
+}
+sf::Packet& operator >>(sf::Packet& packet, PlayerRemove& b) {
+    return packet >> b.player_id;
+}
+
 sf::Packet& operator <<(sf::Packet& packet, const Event& event) {
     packet << event.tick;
 
@@ -101,6 +108,12 @@ sf::Packet& operator >>(sf::Packet& packet, Event& event) {
         }
         case 5: {
             BulletRemove h;
+            packet >> h;
+            event.content = h;
+            break;
+        }
+        case 6: {
+            PlayerRemove h;
             packet >> h;
             event.content = h;
             break;
@@ -177,11 +190,33 @@ static void test_bullet_remove_event() {
     assert(std::get<BulletRemove>(deser.content).bullet_id == 1234);
 }
 
+static void test_player_remove_event() {
+    PlayerRemove h;
+    h.player_id = 1234;
+
+    Event e;
+    e.tick = 123;
+    e.content = h;
+
+    // serialize
+    sf::Packet pkt;
+    pkt << e;
+
+    // deserialize
+    Event deser;
+    pkt >> deser;
+
+    // verify
+    assert(deser.tick == 123);
+    assert(std::get<PlayerRemove>(deser.content).player_id == 1234);
+}
+
 void test_event_serialization() {
     std::cout << "testing event [de]serialization" << std::endl;
     test_player_pos_event();
     test_hello_event();
     test_bullet_remove_event();
+    test_player_remove_event();
     std::cout << "  event [de]serialization ok" << std::endl;
 }
 

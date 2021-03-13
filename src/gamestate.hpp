@@ -19,6 +19,10 @@ struct GameState {
                 players[player_pos.player_id].pos = player_pos.pos;
                 players[player_pos.player_id].look_dir = player_pos.look_dir;
             }
+            if(std::holds_alternative<PlayerRemove>(event.content)) {
+                auto player_remove = std::get<PlayerRemove>(event.content);
+                players.erase(player_remove.player_id);
+            }
         }
     }
 };
