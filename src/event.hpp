@@ -4,15 +4,12 @@
 
 struct PlayerPos {
     u64 player_id;
-    f32 x;
-    f32 y;
+    vec2f pos;
 };
 
 struct BulletShot {
-    f32 x;
-    f32 y;
-    f32 direction_x;
-    f32 direction_y;
+    vec2f pos;
+    vec2f direction;
 };
 
 using EventVariant = std::variant<PlayerPos, BulletShot>;
