@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <span>
 #include "types.hpp"
 #include "event.hpp"
 
@@ -17,7 +18,7 @@ struct GameState {
     std::unordered_map<u64, Player> players;
     std::unordered_map<u64, Bullet> bullets;
 
-    void apply_events(const std::vector<Event>& events) {
+    void apply_events(const std::span<Event>& events) {
         for (auto&& event: events) {
             if (std::holds_alternative<PlayerPos>(event.content)) {
                 PlayerPos player_pos = std::get<PlayerPos>(event.content);

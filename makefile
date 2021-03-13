@@ -1,4 +1,4 @@
-CPP_FLAGS = -std=c++17 -Wall -Wextra -Wshadow
+CPP_FLAGS = -std=c++20 -Wall -Wextra -Wshadow
 DEBUG_FLAGS = -O0 -g -fsanitize=address,undefined
 RELEASE_FLASGS = -O3 -flto
 
