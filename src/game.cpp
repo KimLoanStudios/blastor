@@ -23,10 +23,10 @@ int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__(
 
     GameState game_state;
     GameDrawer game_drawer;
+	game_drawer.fill_dirt(window);
 
     std::vector<Event> events;
 
-	//TODO(Stanisz): This should be taken from the game state
 	sf::Clock delta_clock;
 	float dt = 0.0f;
 
