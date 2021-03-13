@@ -80,10 +80,46 @@ struct Server {
         Event event;
         pkt >> event;
 
-        switch (event.content.index()) {
-            case 0:
-                break;
-        }
+        std::visit([&](auto &&arg) -> void {
+                handle_event(arg, addr);
+        }, event.content);
+    }
+
+    void handle_event(Hello h, SockAddr addr) {
+        std::cout << "received hello message\n" <<
+            "   username = " << h.username << "\n" <<
+            "   addr = " << addr.first << ":" << addr.second << std::endl;
+
+        auto id = peers.create_peer(addr, h.username);
+
+        std::cout << "  assigning id" << id << std::endl;
+
+
+        auto response = HelloResponse {
+            .player_id = id
+        };
+
+        auto event = Event {
+            .tick = 0,
+            .content = response,
+        };
+
+        send_event(event, addr);
+    }
+
+    void handle_event(HelloResponse h, SockAddr addr) {
+    }
+
+    void handle_event(PlayerPos h, SockAddr addr) {
+    }
+
+    void handle_event(BulletShot h, SockAddr addr) {
+    }
+
+    void send_event(Event event, SockAddr to) {
+        sf::Packet pkt;
+        pkt << event;
+        sock.send(pkt, to.first, to.second);
     }
 };
 
