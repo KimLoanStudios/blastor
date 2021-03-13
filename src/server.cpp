@@ -6,12 +6,40 @@
 #include "types.hpp"
 #include "config.hpp"
 #include "event.hpp"
+#include "gamestate.hpp"
 
+using SockAddr = std::pair<sf::IpAddress, u16>;
+
+struct PeerInfo {
+    std::string name;
+    u64 id;
+};
+
+struct Peers {
+    std::map<SockAddr, PeerInfo> peers;
+    std::map<u64, SockAddr> id_to_addr;
+
+    u64 create_peer(SockAddr addr, const std::string& name) {
+        // TODO change this to smth better
+        u64 id = std::hash<std::string>{}(name);
+        auto peer = PeerInfo {
+            .name = name,
+            .id = id,
+        };
+
+        peers[addr] = peer;
+        id_to_addr[id] = addr;
+
+        return id;
+    }
+};
 
 struct Server {
     std::vector<Event> events;
     sf::UdpSocket sock;
     u16 port;
+    GameState game_state;
+    Peers peers;
 
     Server(u16 _port) : port(_port) {}
 
@@ -35,7 +63,7 @@ struct Server {
                 if (res != sf::Socket::Done)
                     break;
 
-                //hadle_packer(pack);
+                handle_packet(pack, {remote_addr, remote_port});
             }
 
             auto elapsed = clock.restart().asSeconds();
@@ -44,11 +72,18 @@ struct Server {
         }
     }
 
-    void handle_packet(sf::Packet& pkt, sf::IpAddress addr, unsigned short remote_port) {
+    void handle_packet(sf::Packet& pkt, SockAddr addr) {
         std::cout <<
-            "received packet from" << addr << ":" << remote_port <<
+            "received packet from" << addr.first << ":" << addr.second <<
             " length = " << pkt.getDataSize();
 
+        Event event;
+        pkt >> event;
+
+        switch (event.content.index()) {
+            case 0:
+                break;
+        }
     }
 };
 
