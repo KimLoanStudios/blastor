@@ -50,6 +50,7 @@ int run_game(GameConfig& config) {
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            
             if (event.type == sf::Event::Resized)
 			{
 				auto sz = window.getSize();
@@ -86,7 +87,7 @@ int run_game(GameConfig& config) {
             send_our_events(our_events, config, sock);
         }
 
-        game_drawer.draw(game_state, window);
+        game_drawer.draw(game_state, window, player_id);
     }
 
     return 0;

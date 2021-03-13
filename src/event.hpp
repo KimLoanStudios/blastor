@@ -20,6 +20,7 @@ sf::Packet& operator >>(sf::Packet& packet, HelloResponse& p);
 struct PlayerPos {
     u64 player_id;
     vec2f pos;
+    vec2f mouse_pos;
 };
 sf::Packet& operator <<(sf::Packet& packet, const PlayerPos& p);
 sf::Packet& operator >>(sf::Packet& packet, PlayerPos& p);

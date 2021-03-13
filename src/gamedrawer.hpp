@@ -73,7 +73,10 @@ struct GameDrawer {
 		free(pixels);
 	}
 
-    void draw(GameState& game_state, sf::RenderWindow& window) {
+    void draw(GameState& game_state, sf::RenderWindow& window, u64 player_id) {
+		vec2f player_pos = game_state.players[player_id].pos;
+		create_view(window, player_pos);
+
         window.clear();
 
 		//NOTE(Stanisz): background
@@ -100,4 +103,15 @@ struct GameDrawer {
 
         window.display();
     }
+
+	void create_view(sf::RenderWindow& window, vec2f player_pos) {
+		f32 view_width = 1000;
+		f32 view_height = f32(window.getSize().y)/f32(window.getSize().x) * view_width;
+
+		f32 view_x = player_pos.x - view_width/2;
+		f32 view_y = player_pos.y - view_height/2;
+
+		sf::View view(sf::FloatRect(view_x, view_y, view_width, view_height));
+		window.setView(view);
+	}
 };
