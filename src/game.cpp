@@ -26,6 +26,13 @@ int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__(
 				window_width = sz.x;
 				window_height = sz.y;
 			}
+			if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::Escape)
+				{
+					window.close();
+				}
+			}
         }
 
 		
