@@ -1,19 +1,26 @@
 #include "game.hpp"
 #include "event.hpp"
 #include "server.hpp"
+#include "gameconfig.hpp"
 #include <string.h>
 
 int main(int argc, const char* argv[]) {
-    if(argc < 2) {
-        return run_game(argc - 2, argv + 2);
-    }
+    try {
+        if(strcmp(argv[1], "--server") == 0) {
+            return run_server(argc - 2, argv + 2);
+        }
 
-    if(strcmp(argv[1], "--server") == 0) {
-        run_server(argc - 2, argv + 2);
-    }
+        if(strcmp(argv[1], "--test") == 0) {
+            test_event_serialization();
+        }
 
-    if(strcmp(argv[1], "--test") == 0) {
-        test_event_serialization();
+        // Else run game
+        GameConfig game_config(argc - 1, argv + 1);
+        return run_game(game_config);
+        
+    } catch(std::exception& e) {
+        std::cout << "OH NO: " << e.what() << '\n';
+        return 1;
     }
 
     return 0;

@@ -3,18 +3,25 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <variant>
+#include <cstring>
 
 #include "gamestate.hpp"
 #include "gamedrawer.hpp"
 #include "event.hpp"
 #include "config.hpp"
+#include "gameconfig.hpp"
 
 void try_receiveing_events(std::vector<Event>& cur_events);
 void send_our_events(std::vector<Event>& our_events);
 std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window);
+std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config);
 
-int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__((unused))) {
+int run_game(GameConfig& config) {
     std::cout << "Running game!\n";
+
+    auto&& [player_id, sock] = connect_to_server(config);
+    std::cout << "I got player_id: " << player_id << '\n';
 
 	unsigned window_width = 200;
 	unsigned window_height = 200;
@@ -134,4 +141,39 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window)
     });
 
     return my_events;
+}
+
+std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config) {
+    std::cout << "Connecting to srever on: " << config.server_address << ":" 
+        << config.server_port << '\n';
+
+    std::unique_ptr<sf::UdpSocket> sock = std::make_unique<sf::UdpSocket>();
+
+    Event hello_event = Event{
+        .tick = 0,
+        .content = Hello {
+            .username = std::string("some_username")
+        }
+    };
+    sf::Packet hello_packet;
+    hello_packet << hello_event;
+
+    sock->send(hello_packet, config.server_address, config.server_port);
+
+    sf::Packet response_packet;
+    sf::IpAddress remote_addr;
+    u16 remote_port;
+
+    sock->receive(response_packet, remote_addr, remote_port);
+
+    Event response_event;
+    response_packet >> response_event;
+
+    HelloResponse hello_response = std::get<HelloResponse>(response_event.content);
+
+    std::pair<u64, std::unique_ptr<sf::UdpSocket>> para;
+    para.first = hello_response.player_id;
+    para.second = std::move(sock);
+
+    return para;
 }
