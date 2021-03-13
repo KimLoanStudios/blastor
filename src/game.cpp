@@ -23,8 +23,8 @@ int run_game(GameConfig& config) {
     auto&& [player_id, sock] = connect_to_server(config);
     std::cout << "I got player_id: " << player_id << '\n';
 
-	unsigned window_width = 200;
-	unsigned window_height = 200;
+	unsigned window_width = 1024;
+	unsigned window_height = 1024;
 
 	sf::RenderWindow window(sf::VideoMode(window_width, window_height), "SFML works!");
 
