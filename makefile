@@ -27,3 +27,5 @@ build/release/%.cpp.o: %.cpp
 
 clean:
 	rm -rf build
+
+.DEFAULT_GOAL = debug
