@@ -5,6 +5,20 @@
 
 #include "types.hpp"
 
+struct Hello {
+    std::string username;
+};
+
+sf::Packet& operator <<(sf::Packet& packet, const Hello& p);
+sf::Packet& operator >>(sf::Packet& packet, Hello& p);
+
+struct HelloResponse {
+    u64 player_id;
+};
+
+sf::Packet& operator <<(sf::Packet& packet, const HelloResponse& p);
+sf::Packet& operator >>(sf::Packet& packet, HelloResponse& p);
+
 struct PlayerPos {
     u64 player_id;
     vec2f pos;
@@ -21,7 +35,12 @@ struct BulletShot {
 sf::Packet& operator <<(sf::Packet& packet, const BulletShot& b);
 sf::Packet& operator >>(sf::Packet& packet, BulletShot& b);
 
-using EventVariant = std::variant<PlayerPos, BulletShot>;
+using EventVariant = std::variant<
+    PlayerPos,
+    BulletShot,
+    Hello,
+    HelloResponse
+>;
 
 struct Event {
     u64 tick;

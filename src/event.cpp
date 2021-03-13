@@ -9,10 +9,23 @@ sf::Packet& operator >> (sf::Packet& packet, vec2f& v) {
     return packet >> v.x >> v.y;
 }
 
+sf::Packet& operator <<(sf::Packet& packet, const Hello& p) {
+    return packet << p.username;
+}
+sf::Packet& operator >>(sf::Packet& packet, Hello& p) {
+    return packet >> p.username;
+}
+
+sf::Packet& operator <<(sf::Packet& packet, const HelloResponse& p) {
+    return packet << p.player_id;
+}
+sf::Packet& operator >>(sf::Packet& packet, HelloResponse& p) {
+    return packet >> p.player_id;
+}
+
 sf::Packet& operator <<(sf::Packet& packet, const PlayerPos& p) {
     return packet << p.player_id << p.pos;
 }
-
 sf::Packet& operator >>(sf::Packet& packet, PlayerPos& p) {
     return packet >> p.player_id >> p.pos;
 }
@@ -35,7 +48,6 @@ sf::Packet& operator <<(sf::Packet& packet, const Event& event) {
 
     return packet;
 }
-
 sf::Packet& operator >>(sf::Packet& packet, Event& event) {
     packet >> event.tick;
 

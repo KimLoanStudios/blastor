@@ -43,6 +43,13 @@ struct Server {
             sf::sleep(sf::seconds(toSleep));
         }
     }
+
+    void handle_packet(sf::Packet& pkt, sf::IpAddress addr, unsigned short remote_port) {
+        std::cout <<
+            "received packet from" << addr << ":" << remote_port <<
+            " length = " << pkt.getDataSize();
+
+    }
 };
 
 
@@ -62,6 +69,3 @@ int run_server(int argc, const char* argv[]) {
     return 0;
 }
 
-void handle_packet(sf::Packet& pkt, sf::IpAddress addr, unsigned short port) {
-    std::cout << "received packet from" << addr << ":" << port << " length = " << pkt.getDataSize();
-}
