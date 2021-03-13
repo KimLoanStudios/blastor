@@ -2,8 +2,16 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <map>
+#include <vector>
 
-using namespace sf;
+#include "gamestate.hpp"
+#include "gamedrawer.hpp"
+#include "event.hpp"
+#include "config.hpp"
+
+void try_receiveing_events(std::vector<Event>& cur_events);
+void send_our_events(std::vector<Event>& our_events);
+std::vector<Event> handle_input(GameState& game_state, std::map<sf::Keyboard::Key, bool>& pressed_keys);
 
 int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__((unused))) {
     std::cout << "Running game!\n";
@@ -12,13 +20,17 @@ int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__(
 	unsigned window_height = 200;
 
 	sf::RenderWindow window(sf::VideoMode(window_width, window_height), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+
+    GameState game_state;
+    GameDrawer game_drawer;
+
+    std::vector<Event> events;
 
 	//TODO(Stanisz): This should be taken from the game state
-	Vector2 position(100.0f, 100.0f);
-	Clock delta_clock;
+	sf::Clock delta_clock;
 	float dt = 0.0f;
+
+    sf::Clock tick_clock;
 
 	std::map<sf::Keyboard::Key, bool> pressed_keys;
 
@@ -52,42 +64,77 @@ int run_game(int argc __attribute__((unused)), const char* argv[] __attribute__(
 			}
         }
 
-		sf::Vector2f moving_dir(0.0f, 0.0f);
-		if (pressed_keys[sf::Keyboard::W])
-		{
-			moving_dir += Vector2f(0.0f, -1.0f);
-		}
-		if (pressed_keys[sf::Keyboard::D])
-		{
-			moving_dir += Vector2f(1.0f, 0.0f);
-		}
-		if (pressed_keys[sf::Keyboard::A])
-		{
-			moving_dir += Vector2f(-1.0f, 0.0f);
-		}
-		if (pressed_keys[sf::Keyboard::S])
-		{
-			moving_dir += Vector2f(0.0f, 1.0f);
-		}
-		
-		float moving_dir_len = (float)moving_dir.x * moving_dir.x + moving_dir.y * moving_dir.y;
-		moving_dir_len = sqrt(moving_dir_len);
+        try_receiveing_events(events);
 
-		if (moving_dir_len > 0.0f)
-		{
-			moving_dir /= moving_dir_len;
-		}
+        if(tick_clock.getElapsedTime().asSeconds() >= TICK_TIME) {
+            tick_clock.restart();
 
-		float speed = 0.5f;
-		position += speed * dt * moving_dir;
+            game_state.apply_events(events);
+            events.clear();
 
-		
-		shape.setPosition(position.x, position.y);		
+            std::vector<Event> our_events = handle_input(game_state, pressed_keys);
 
-        window.clear();
-        window.draw(shape);
-        window.display();
+            game_state.apply_events(our_events);
+
+            send_our_events(our_events);
+        }
+
+        game_drawer.draw(game_state, window);
     }
 
     return 0;
+}
+
+void try_receiveing_events(std::vector<Event>& cur_events) {
+    // TODO
+}
+
+void send_our_events(std::vector<Event>& our_events) {
+    // TODO
+}
+
+std::vector<Event> handle_input(GameState& game_state, std::map<sf::Keyboard::Key, bool>& pressed_keys) {
+    vec2f moving_dir(0.0f, 0.0f);
+
+    if (pressed_keys[sf::Keyboard::W])
+    {
+        moving_dir += vec2f(0.0f, -1.0f);
+    }
+    if (pressed_keys[sf::Keyboard::D])
+    {
+        moving_dir += vec2f(1.0f, 0.0f);
+    }
+    if (pressed_keys[sf::Keyboard::A])
+    {
+        moving_dir += vec2f(-1.0f, 0.0f);
+    }
+    if (pressed_keys[sf::Keyboard::S])
+    {
+        moving_dir += vec2f(0.0f, 1.0f);
+    }
+		
+    float moving_dir_len = (float)moving_dir.x * moving_dir.x + moving_dir.y * moving_dir.y;
+    moving_dir_len = sqrt(moving_dir_len);
+
+    if (moving_dir_len > 0.0f)
+    {
+        moving_dir /= moving_dir_len;
+    }   
+
+    f32 sped = 1000.0;
+
+    u64 my_id = game_state.my_player_id;
+    vec2f my_new_pos = game_state.players[my_id].pos + float(TICK_TIME) * sped *  moving_dir;
+
+    std::vector<Event> my_events;
+
+    my_events.push_back(Event {
+        .tick = 3,
+        .content = PlayerPos {
+            .player_id = my_id,
+            .pos = my_new_pos
+        }
+    });
+
+    return my_events;
 }
