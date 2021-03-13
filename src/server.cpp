@@ -113,6 +113,7 @@ struct Server {
                 events.push_back(event);
             };
             peers.remove_inactive_peers(tick, on_peer_removal);
+            logic();
             flush_events();
 
             auto elapsed = clock.restart().asSeconds();
@@ -214,6 +215,33 @@ struct Server {
             return std::get<PlayerPos>(event.content).player_id;
         }
         return 0;
+    }
+
+    void logic() {
+        for (auto &&[id, bullet] : game_state.bullets) {
+            auto new_position = bullet.pos + bullet.direction * TICK_TIME;
+
+            if (std::abs(new_position.x) + std::abs(new_position.y) > 2048) {
+                auto bullet_remove = BulletRemove {
+                    .bullet_id = id,
+                };
+
+                events.push_back(Event{
+                    .tick = tick,
+                    .content = bullet_remove,
+                });
+            } else {
+                auto bullet_pos = BulletPos {
+                    .bullet_id = id,
+                    .pos = new_position,
+                };
+
+                events.push_back(Event {
+                    .tick = tick,
+                    .content = bullet_pos,
+                });
+            }
+        }
     }
 };
 
