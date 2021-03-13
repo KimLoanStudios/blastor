@@ -12,9 +12,9 @@
 #include "config.hpp"
 #include "gameconfig.hpp"
 
-void try_receiveing_events(std::vector<Event>& cur_events);
-void send_our_events(std::vector<Event>& our_events);
-std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window);
+void try_receiveing_events(std::vector<Event>&, std::unique_ptr<sf::UdpSocket>&);
+void send_our_events(std::vector<Event>&, GameConfig&, std::unique_ptr<sf::UdpSocket>&);
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, u64);
 std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config);
 
 int run_game(GameConfig& config) {
@@ -71,7 +71,7 @@ int run_game(GameConfig& config) {
 			}
         }
 
-        try_receiveing_events(events);
+        try_receiveing_events(events, sock);
 
         if(tick_clock.getElapsedTime().asSeconds() >= TICK_TIME) {
             tick_clock.restart();
@@ -79,11 +79,11 @@ int run_game(GameConfig& config) {
             game_state.apply_events(events);
             events.clear();
 
-            std::vector<Event> our_events = handle_input(game_state, window);
+            std::vector<Event> our_events = handle_input(game_state, window, player_id);
 
             game_state.apply_events(our_events);
 
-            send_our_events(our_events);
+            send_our_events(our_events, config, sock);
         }
 
         game_drawer.draw(game_state, window);
@@ -92,15 +92,27 @@ int run_game(GameConfig& config) {
     return 0;
 }
 
-void try_receiveing_events(std::vector<Event>& cur_events) {
-    // TODO
+void try_receiveing_events(std::vector<Event>& cur_events, std::unique_ptr<sf::UdpSocket>& sock) {
+    sf::Packet packet;
+    sf::IpAddress sender_addr;
+    u16 sender_port;
+    while(sock->receive(packet, sender_addr, sender_port) == sf::Socket::Done) {
+        Event event;
+        packet >> event;
+        cur_events.push_back(event);
+    }
 }
 
-void send_our_events(std::vector<Event>& our_events) {
-    // TODO
+void send_our_events(std::vector<Event>& our_events, GameConfig& config, 
+                     std::unique_ptr<sf::UdpSocket>& sock) {
+    for(auto&& event: our_events) {
+        sf::Packet packet;
+        packet << event;
+        sock->send(packet, config.server_address, config.server_port);
+    }
 }
 
-std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window) {
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, u64 player_id) {
     // vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
 
     vec2f moving_dir(0.0f, 0.0f);
@@ -127,15 +139,14 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window)
 
     f32 sped = 1000.0;
 
-    u64 my_id = game_state.my_player_id;
-    vec2f my_new_pos = game_state.players[my_id].pos + float(TICK_TIME) * sped *  moving_dir;
+    vec2f my_new_pos = game_state.players[player_id].pos + float(TICK_TIME) * sped *  moving_dir;
 
     std::vector<Event> my_events;
 
     my_events.push_back(Event {
         .tick = 3,
         .content = PlayerPos {
-            .player_id = my_id,
+            .player_id = player_id,
             .pos = my_new_pos
         }
     });
@@ -145,14 +156,14 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window)
 
 std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config) {
     std::cout << "Connecting to srever on: " << config.server_address << ":" 
-        << config.server_port << '\n';
+        << config.server_port << " with username: " << config.username << '\n';
 
     std::unique_ptr<sf::UdpSocket> sock = std::make_unique<sf::UdpSocket>();
 
     Event hello_event = Event{
         .tick = 0,
         .content = Hello {
-            .username = std::string("some_username")
+            .username = config.username
         }
     };
     sf::Packet hello_packet;
@@ -170,6 +181,8 @@ std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& con
     response_packet >> response_event;
 
     HelloResponse hello_response = std::get<HelloResponse>(response_event.content);
+
+    sock->setBlocking(false);
 
     std::pair<u64, std::unique_ptr<sf::UdpSocket>> para;
     para.first = hello_response.player_id;

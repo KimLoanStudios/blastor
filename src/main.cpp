@@ -6,12 +6,14 @@
 
 int main(int argc, const char* argv[]) {
     try {
-        if(strcmp(argv[1], "--server") == 0) {
-            return run_server(argc - 2, argv + 2);
-        }
+        if(argc >= 2) {
+            if(strcmp(argv[1], "--server") == 0) {
+                return run_server(argc - 2, argv + 2);
+            }
 
-        if(strcmp(argv[1], "--test") == 0) {
-            test_event_serialization();
+            if(strcmp(argv[1], "--test") == 0) {
+                test_event_serialization();
+            }
         }
 
         // Else run game

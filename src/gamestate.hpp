@@ -9,7 +9,6 @@ struct Player {
 };
 
 struct GameState {
-    u64 my_player_id;
     std::unordered_map<u64, Player> players;
 
     void apply_events(const std::vector<Event>& events) {
