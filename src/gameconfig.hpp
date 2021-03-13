@@ -8,29 +8,52 @@
 struct GameConfig {
     sf::IpAddress server_address;
     u16 server_port;
+    std::string username;
 
     GameConfig() = delete;
 
     GameConfig(int argc, const char* argv[]) {
         std::cout << "Creating GameConfig!";
+
+        std::cout << "XD\n" << std::flush;
+        // Parse server address
         int server_address_pos = -1;
         for(int i  = 0; i < argc; i++) {
-            std::cout << argv[i] << '\n';
             if(strcmp(argv[i], "--server-address") == 0) {
                 server_address_pos = i;
                 break;
             }
         }
 
-        if(server_address_pos + 1 == argc) {
-            throw std::runtime_error("No argument after --server--address!");
-        }
 
         if(server_address_pos != -1) {
+            if(server_address_pos + 1 == argc) {
+                throw std::runtime_error("No argument after --server--address!");
+            }
+
             parse_server_address(argv[server_address_pos + 1]);
         } else {
             server_address = sf::IpAddress(127, 0, 0, 1);
             server_port = SERVER_PORT;
+        }
+
+        // Parse username
+        int username_pos = -1;
+        for(int i = 0; i < argc; i++) {
+            if(strcmp(argv[i], "--username") == 0) {
+                username_pos = i;
+                break;
+            }
+        }
+
+        if(username_pos != -1) {
+            if(username_pos + 1 == argc) {
+                throw std::runtime_error("No argument after --username!");
+            }
+
+            username = std::string(argv[username_pos + 1]);
+        } else {
+            username = "default_user"; // TODO maybe random username?
         }
     }
 
@@ -54,7 +77,6 @@ struct GameConfig {
         }
 
         std::string port_str = std::string(addr_str).substr(colon_pos + 1);
-
 
         server_address = sf::IpAddress(ip_addr_str);
         server_port = atoi(port_str.c_str());
