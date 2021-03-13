@@ -4,10 +4,10 @@
 * On Linux:
     * Install `sfml`:
     ```bash
-    # Ubuntu: 
-    apt install sfml-dev
+    # Ubuntu:
+    apt install libsfml-dev
 
-    # Arch: 
+    # Arch:
     pacman -S sfml
     ```
     * Build the game:

@@ -6,7 +6,6 @@
 sf::Packet& operator <<(sf::Packet& packet, const vec2f& v) {
     return packet << v.x << v.y;
 }
-
 sf::Packet& operator >> (sf::Packet& packet, vec2f& v) {
     return packet >> v.x >> v.y;
 }
@@ -33,10 +32,24 @@ sf::Packet& operator >>(sf::Packet& packet, PlayerPos& p) {
 }
 
 sf::Packet& operator <<(sf::Packet& packet, const BulletShot& b) {
-    return packet << b.pos << b.direction;
+    return packet << b.pos << b.direction << b.bullet_id;
 }
 sf::Packet& operator >>(sf::Packet& packet, BulletShot& b) {
-    return packet >> b.pos >> b.direction;
+    return packet >> b.pos >> b.direction >> b.bullet_id;
+}
+
+sf::Packet& operator <<(sf::Packet& packet, const BulletPos& b) {
+    return packet << b.pos << b.bullet_id;
+}
+sf::Packet& operator >>(sf::Packet& packet, BulletPos& b) {
+    return packet >> b.pos >> b.bullet_id;
+}
+
+sf::Packet& operator <<(sf::Packet& packet, const BulletRemove& b) {
+    return packet << b.bullet_id;
+}
+sf::Packet& operator >>(sf::Packet& packet, BulletRemove& b) {
+    return packet >> b.bullet_id;
 }
 
 sf::Packet& operator <<(sf::Packet& packet, const Event& event) {
@@ -76,6 +89,18 @@ sf::Packet& operator >>(sf::Packet& packet, Event& event) {
         }
         case 3: {
             HelloResponse h;
+            packet >> h;
+            event.content = h;
+            break;
+        }
+        case 4: {
+            BulletPos h;
+            packet >> h;
+            event.content = h;
+            break;
+        }
+        case 5: {
+            BulletRemove h;
             packet >> h;
             event.content = h;
             break;
@@ -129,10 +154,32 @@ static void test_hello_event() {
     assert(std::get<Hello>(deser.content).username == "hej");
 }
 
+static void test_bullet_remove_event() {
+    BulletRemove h;
+    h.bullet_id = 1234;
+
+    Event e;
+    e.tick = 123;
+    e.content = h;
+
+    // serialize
+    sf::Packet pkt;
+    pkt << e;
+
+    // deserialize
+    Event deser;
+    pkt >> deser;
+
+    // verify
+    assert(deser.tick == 123);
+    assert(std::get<BulletRemove>(deser.content).bullet_id == 1234);
+}
+
 void test_event_serialization() {
     std::cout << "testing event [de]serialization" << std::endl;
     test_player_pos_event();
     test_hello_event();
+    test_bullet_remove_event();
     std::cout << "  event [de]serialization ok" << std::endl;
 }
 

@@ -21,7 +21,7 @@ struct Peers {
 
     u64 create_peer(SockAddr addr, const std::string& name) {
         // TODO change this to smth better
-        u64 id = std::hash<std::string>{}(name);
+        u64 id = std::hash<std::string>{}(name) + addr.second;
         auto peer = PeerInfo {
             .name = name,
             .id = id,
@@ -81,8 +81,8 @@ struct Server {
 
     void handle_packet(sf::Packet& pkt, SockAddr addr) {
         std::cout <<
-            "received packet from" << addr.first << ":" << addr.second <<
-            " length = " << pkt.getDataSize();
+            "received packet from " << addr.first << ":" << addr.second << "\n" <<
+            "    length = " << pkt.getDataSize() << std::endl;
 
         Event event;
         pkt >> event;
@@ -94,12 +94,12 @@ struct Server {
 
     void handle_event(Hello h, SockAddr addr) {
         std::cout << "received hello message\n" <<
-            "   username = " << h.username << "\n" <<
-            "   addr = " << addr.first << ":" << addr.second << std::endl;
+            "    username = " << h.username << "\n" <<
+            "    addr = " << addr.first << ":" << addr.second << std::endl;
 
         auto id = peers.create_peer(addr, h.username);
 
-        std::cout << "  assigning id" << id << std::endl;
+        std::cout << "    assigning id = " << id << std::endl;
 
 
         auto response = HelloResponse {
@@ -114,12 +114,12 @@ struct Server {
         send_event(event, addr);
     }
 
-    void handle_event(HelloResponse h, SockAddr addr) {
+    void handle_event(HelloResponse, SockAddr addr) {
         std::cout << "received hello response\n" <<
-            "   addr = " << addr.first << ":" << addr.second << std::endl;
+            "    addr = " << addr.first << ":" << addr.second << std::endl;
     }
 
-    void handle_event(PlayerPos pp, SockAddr addr) {
+    void handle_event(PlayerPos pp, SockAddr) {
         auto event = Event {
             .tick = tick,
             .content = pp,
@@ -128,7 +128,13 @@ struct Server {
         events.push_back(event);
     }
 
-    void handle_event(BulletShot h, SockAddr addr) {
+    void handle_event(BulletShot, SockAddr) {
+    }
+
+    void handle_event(BulletPos, SockAddr) {
+    }
+
+    void handle_event(BulletRemove, SockAddr ) {
     }
 
     void send_event(Event event, SockAddr to) {
