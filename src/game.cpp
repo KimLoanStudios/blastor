@@ -173,7 +173,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
         moving_dir /= moving_dir_len;
     }
 
-    f32 sped = 1000.0;
+    f32 sped = PLAYER_SPEED;
 
     vec2f my_new_pos = game_state.players[player_id].pos + float(TICK_TIME) * sped *  moving_dir;
 
@@ -254,7 +254,7 @@ std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& con
     sock->send(state_pack, config.server_address, config.server_port);
 
     sock->setBlocking(false);
-    
+
     std::pair<u64, std::unique_ptr<sf::UdpSocket>> para;
     para.first = hello_response.player_id;
     para.second = std::move(sock);

@@ -29,6 +29,8 @@ struct GameState {
         for (auto&& event: events) {
             if (std::holds_alternative<PlayerPos>(event.content)) {
                 PlayerPos player_pos = std::get<PlayerPos>(event.content);
+                if (players.find(player_pos.player_id) == players.end())
+                    return;
 
                 players[player_pos.player_id].pos = player_pos.pos;
                 players[player_pos.player_id].look_dir = player_pos.look_dir;
