@@ -14,6 +14,7 @@ struct GameDrawer {
 	sf::Sprite dirt;
 	sf::Texture dirt_tex;
 	sf::Texture box_tex;
+	sf::Texture grass_tex;
 	sf::Color bg_color;
 	sf::Font font;
 
@@ -21,6 +22,8 @@ struct GameDrawer {
 	{
 		bg_color = sf::Color(0xfa, 0xba, 0xba, 0xfa);
 		box_tex.loadFromFile("assets/box.jpg", sf::Rect(0, 0, 400, 400));
+		grass_tex.loadFromFile("assets/grass.jpg", sf::Rect(0, 0, 400, 400));
+		grass_tex.setRepeated(true);
 
 		auto win_sz = window.getSize();
 		dirt_tex.create(1024, 1024);
@@ -79,6 +82,7 @@ struct GameDrawer {
 
 		dirt_tex.update((unsigned char*)pixels);
 		dirt.setTexture(dirt_tex);
+		dirt.setTexture(grass_tex);
 		font.loadFromFile("assets/cs.ttf");
 
 		dirt.setPosition(0, 0);
