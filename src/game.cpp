@@ -20,6 +20,8 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config);
 
 int run_game(GameConfig& config) {
+    srand(time(NULL));
+
     std::cout << "Running game!\n";
 
     std::vector<Event> events;
@@ -178,6 +180,26 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
     vec2f my_new_pos = game_state.players[player_id].pos + float(TICK_TIME) * sped *  moving_dir;
 
     std::vector<Event> my_events;
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R) && game_state.players[player_id].dead) {
+        game_state.players[player_id].dead = false;
+
+        game_state.players[player_id].pos = vec2f(rand() % 1024, rand() % 1024);
+
+        PlayerStatsChange ps = PlayerStatsChange {
+            .player_id = player_id,
+            .dead = false,
+            .score = game_state.players[player_id].score,
+            .name = game_state.players[player_id].name,
+        };
+
+        Event stateevent = Event  {
+            .tick = 0,
+            .content = ps
+        };        
+
+        my_events.push_back(stateevent);
+    }
 
 	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024)
 	{
