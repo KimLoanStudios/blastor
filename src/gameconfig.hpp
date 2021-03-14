@@ -53,7 +53,7 @@ struct GameConfig {
 
             username = std::string(argv[username_pos + 1]);
         } else {
-            username = "default_user"; // TODO maybe random username?
+            username = gen_random_username();
         }
     }
 
@@ -80,5 +80,59 @@ struct GameConfig {
 
         server_address = sf::IpAddress(ip_addr_str);
         server_port = atoi(port_str.c_str());
+    }
+
+    std::string gen_random_username() {
+        srand(time(NULL));
+
+        std::vector<const char*> adjectives = {
+            "Betonowy",
+            "Tytanowy",
+            "Wsciekly",
+            "Niezniszczalny",
+            "Szybki",
+            "Potezny",
+            "Zawistny",
+            "Stalowy",
+            "Ognisty",
+            "Ziemny",
+            "Wodny",
+            "Morski",
+            "Bawarski",
+            "Wielki",
+            "Wybuchowy",
+            "Bombowy",
+            "Mrozny",
+            "Boski",
+            "Dlugi",
+            "Krotki",
+            "Szeroki",
+            "Waski",
+            "Sztywny",
+            "Ostry",
+            "Mroczny",
+            "Jasny",
+        };
+
+        std::vector<const char*> names = {
+            "Janusz",
+            "Andrzej",
+            "Marek",
+            "Mariusz",
+            "Daniel",
+            "Ambrozy",
+            "Jaroslaw",
+            "Dariusz",
+            "Pawel",
+            "Jacek",
+            "Jakub",
+            "Antoni",
+            "Wieslaw",
+        };
+
+        const char* adjective = adjectives[rand() % adjectives.size()];
+        const char* name = names[rand() % names.size()];
+
+        return std::string(adjective) + name;
     }
 };
