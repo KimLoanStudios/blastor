@@ -173,8 +173,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 
     if(wasclick) {
         vec2f bullet_pos = my_new_pos + 50.f * look_dir;
-
-        std::cout << "SHOOTOTOTOTOTT id:" << bullet_id << '\n' << std::flush;
+        
         my_events.push_back(Event {
             .tick = 3,
             .content = BulletShot {

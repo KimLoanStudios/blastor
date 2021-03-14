@@ -123,7 +123,7 @@ struct GameDrawer {
 				window.draw(shape);
 
 
-				sf::Text text("Pizdusia", font);
+				sf::Text text(player.name.empty() ? "unknown" : player.name, font);
 				text.setCharacterSize(30);
 				text.setFillColor(sf::Color::Black);
 				text.setPosition(player.pos + vec2f(-60.0f, -60.0f));
