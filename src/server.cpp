@@ -380,7 +380,9 @@ struct Server {
         srand(time(NULL));
 
         const int min_boxes = 8;
-        const int max_boxes = 16;
+        const int max_boxes = 10;
+        const int min_box_pos = 80;
+        const int max_box_pos = 1024 - 180;
         const int min_box_size = 50;
         const int max_box_size = 200;
 
@@ -393,7 +395,8 @@ struct Server {
         std::vector<Event> box_events;
 
         for(int b = 0; b < num_boxes; b++) {
-            vec2f box_pos = vec2f(rand() % 1024, rand() % 1024);
+            vec2f box_pos = vec2f(genRange(min_box_pos, max_box_pos), 
+                                  genRange(min_box_pos, max_box_pos));
 
             vec2f box_size = vec2f(genRange(min_box_size, max_box_size),
                                    genRange(min_box_size, max_box_size));
