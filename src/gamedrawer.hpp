@@ -164,6 +164,15 @@ struct GameDrawer {
 			}
 
 		}
+
+		std::string to_display = "Score:";
+		to_display += std::to_string(game_state.players[player_id].score);
+		sf::Text text(to_display, font);
+		text.setCharacterSize(80);
+		text.setFillColor(sf::Color::Green);
+		text.setPosition(game_state.players[player_id].pos - vec2f(500, 500));
+
+		window.draw(text);
         window.display();
     }
 
