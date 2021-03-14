@@ -203,6 +203,17 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
         my_events.push_back(stateevent);
     }
 
+    if(is_dead) {
+        my_events.push_back(Event {
+			.tick = 3,
+			.content = PlayerPos {
+				.player_id = player_id,
+				.pos = game_state.players[player_id].pos,
+                .look_dir = look_dir
+			}
+		});
+    }
+
 	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024 && !is_dead)
 	{
 		my_events.push_back(Event {
