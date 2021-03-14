@@ -199,6 +199,11 @@ struct GameDrawer {
 		f32 view_width = 1200;
 		f32 view_height = f32(window.getSize().y)/f32(window.getSize().x) * view_width;
 
+		if(view_height > view_width) {
+			view_height = 1200;
+			view_width = f32(window.getSize().x)/f32(window.getSize().y) * view_height;
+		}
+
 		f32 view_x = player_pos.x - view_width/2;
 		f32 view_y = player_pos.y - view_height/2;
 
