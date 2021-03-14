@@ -280,6 +280,7 @@ struct Server {
     void logic() {
         for (auto &&[id, bullet] : game_state.bullets) {
             collide_with_players(bullet, id);
+            collide_with_boxes(bullet, id);
             //std::cout << "bullet id = " << id << std::endl;
             auto new_position = bullet.pos + bullet.direction * BULLET_SPEED;
 
@@ -336,6 +337,21 @@ struct Server {
         }
     }
 
+    void collide_with_boxes(const Bullet& b, u64 bullet_id) {
+        for (auto &&[id, box] : game_state.boxes) {
+
+            auto bullet_pos = b.pos;
+
+            //std::cout << "box = " << ;
+            if (box.is_inside(bullet_pos)) {
+                auto bullet_remove = BulletRemove {
+                    .bullet_id = bullet_id,
+                };
+                push_event(bullet_remove);
+            }
+        }
+    }
+
     void increase_score(u64 player_id) {
         if (game_state.players.count(player_id) == 0)
             return;
@@ -359,7 +375,7 @@ struct Server {
             .content = event,
         });
     }
-    
+
     void generate_boxes() {
         srand(time(NULL));
 
@@ -374,10 +390,12 @@ struct Server {
 
         int num_boxes = genRange(min_boxes, max_boxes);
 
+        std::vector<Event> box_events;
+
         for(int b = 0; b < num_boxes; b++) {
             vec2f box_pos = vec2f(rand() % 1024, rand() % 1024);
 
-            vec2f box_size = vec2f(genRange(min_box_size, max_box_size), 
+            vec2f box_size = vec2f(genRange(min_box_size, max_box_size),
                                    genRange(min_box_size, max_box_size));
 
             BoxAdded box_added = BoxAdded {
@@ -386,11 +404,15 @@ struct Server {
                 .size = box_size,
             };
 
-            all_events.push_back(Event {
+            auto event = Event {
                 .tick = 0,
                 .content = box_added,
-            });
+            };
+            box_events.push_back(event);
+            all_events.push_back(event);
         }
+
+        game_state.apply_events(box_events);
     }
 };
 

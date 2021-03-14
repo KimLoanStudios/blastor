@@ -25,6 +25,11 @@ struct Bullet {
 struct Box {
     vec2f pos;
     vec2f size;
+
+    bool is_inside(vec2f point) {
+        return point.x >= pos.x && point.x <= pos.x + size.x
+            && point.y >= pos.y && point.y <= pos.y + size.y;
+    }
 };
 
 struct GameState {
