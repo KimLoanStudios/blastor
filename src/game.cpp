@@ -149,6 +149,8 @@ void send_our_events(std::vector<Event>& our_events, GameConfig& config,
 std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
                                 u64 player_id, bool wasclick, u64 bullet_id) {
 
+    bool is_dead = game_state.players[player_id].dead;
+
     vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
     vec2f window_center = vec2f(window.getSize())/2.f;
     vec2f look_dir = normalize(mouse_pos - window_center);
@@ -181,7 +183,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 
     std::vector<Event> my_events;
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R) && game_state.players[player_id].dead) {
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R) && is_dead) {
         game_state.players[player_id].dead = false;
 
         game_state.players[player_id].pos = vec2f(rand() % 1024, rand() % 1024);
@@ -201,7 +203,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
         my_events.push_back(stateevent);
     }
 
-	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024)
+	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024 && !is_dead)
 	{
 		my_events.push_back(Event {
 			.tick = 3,
@@ -213,7 +215,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 		});
 	}
 
-    if(wasclick) {
+    if(wasclick && !is_dead) {
         vec2f bullet_pos = my_new_pos + 50.f * look_dir;
 
         my_events.push_back(Event {
