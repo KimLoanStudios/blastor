@@ -73,6 +73,7 @@ struct Server {
 
     GameState game_state;
     std::vector<Event> events;
+    std::vector<Event> all_events;
     Peers peers;
 
     u32 tick = 0;
@@ -170,6 +171,11 @@ struct Server {
         };
 
         send_event(event, addr);
+
+        std::cout << "    len of stream = " << all_events.size() << std::endl;
+        for (auto &&old_event : all_events) {
+            send_event(old_event, addr);
+        }
     }
 
     void handle_event(HelloResponse, SockAddr addr) {
@@ -235,6 +241,10 @@ struct Server {
                     send_event(event, peer.first);
                 }
             }
+        }
+
+        for (auto &event : events) {
+            all_events.push_back(event);
         }
 
         events.clear();

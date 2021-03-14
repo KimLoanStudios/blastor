@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <span>
+#include <iostream>
 
 #include "types.hpp"
 #include "event.hpp"
@@ -10,7 +11,7 @@ struct Player {
     vec2f pos;
     vec2f look_dir;
 
-    bool dead = true;
+    bool dead = false;
     i32 score = 0;
     std::string name;
 };

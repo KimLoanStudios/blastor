@@ -46,6 +46,7 @@ int run_game(GameConfig& config) {
     std::random_device rd;
     std::mt19937_64 gen(rd());
     std::uniform_int_distribution<uint64_t> dis;
+    bool first = true;
 
     while (window.isOpen())
     {
@@ -56,7 +57,7 @@ int run_game(GameConfig& config) {
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            
+
             if (event.type == sf::Event::Resized)
 			{
 				auto sz = window.getSize();
@@ -77,6 +78,10 @@ int run_game(GameConfig& config) {
         }
 
         try_receiveing_events(events, sock);
+        if (first) {
+            std::cout << "wszystkie = " << events.size() << std::endl;
+            first = false;
+        }
 
         if(tick_clock.getElapsedTime().asSeconds() >= TICK_TIME) {
             tick_clock.restart();
@@ -110,7 +115,7 @@ void try_receiveing_events(std::vector<Event>& cur_events, std::unique_ptr<sf::U
     }
 }
 
-void send_our_events(std::vector<Event>& our_events, GameConfig& config, 
+void send_our_events(std::vector<Event>& our_events, GameConfig& config,
                      std::unique_ptr<sf::UdpSocket>& sock) {
     for(auto&& event: our_events) {
         sf::Packet packet;
@@ -119,7 +124,7 @@ void send_our_events(std::vector<Event>& our_events, GameConfig& config,
     }
 }
 
-std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window, 
+std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
                                 u64 player_id, bool wasclick, u64 bullet_id) {
 
     vec2f mouse_pos = vec2f(sf::Mouse::getPosition(window));
@@ -139,14 +144,14 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         moving_dir += vec2f(0.0f, 1.0f);
-		
+
     float moving_dir_len = (float)moving_dir.x * moving_dir.x + moving_dir.y * moving_dir.y;
     moving_dir_len = sqrt(moving_dir_len);
 
     if (moving_dir_len > 0.0f)
     {
         moving_dir /= moving_dir_len;
-    }   
+    }
 
     f32 sped = 1000.0;
 
@@ -184,7 +189,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 }
 
 std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& config) {
-    std::cout << "Connecting to srever on: " << config.server_address << ":" 
+    std::cout << "Connecting to srever on: " << config.server_address << ":"
         << config.server_port << " with username: " << config.username << '\n';
 
     std::unique_ptr<sf::UdpSocket> sock = std::make_unique<sf::UdpSocket>();
