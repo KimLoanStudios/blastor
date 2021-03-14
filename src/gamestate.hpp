@@ -55,6 +55,9 @@ struct GameState {
             }
             if (std::holds_alternative<PlayerStatsChange>(event.content)) {
                 auto s = std::get<PlayerStatsChange>(event.content);
+
+                std::cout << "Got a state change" << std::endl;
+
                 Player& player = players[s.player_id];
                 player.dead = s.dead;
                 player.score = s.score;

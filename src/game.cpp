@@ -193,7 +193,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 
     if(wasclick) {
         vec2f bullet_pos = my_new_pos + 50.f * look_dir;
-        
+
         my_events.push_back(Event {
             .tick = 3,
             .content = BulletShot {
@@ -235,8 +235,26 @@ std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& con
 
     HelloResponse hello_response = std::get<HelloResponse>(response_event.content);
 
-    sock->setBlocking(false);
 
+    PlayerStatsChange ps = PlayerStatsChange {
+        .player_id = hello_response.player_id,
+        .dead = false,
+        .score = 0,
+        .name = config.username,
+    };
+
+    Event stateevent = Event  {
+        .tick = 0,
+        .content = ps
+    };
+
+    sf::Packet state_pack;
+    state_pack << stateevent;
+
+    sock->send(state_pack, config.server_address, config.server_port);
+
+    sock->setBlocking(false);
+    
     std::pair<u64, std::unique_ptr<sf::UdpSocket>> para;
     para.first = hello_response.player_id;
     para.second = std::move(sock);
