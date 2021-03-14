@@ -22,19 +22,39 @@ std::pair<u64, std::unique_ptr<sf::UdpSocket>> connect_to_server(GameConfig& con
 int run_game(GameConfig& config) {
     std::cout << "Running game!\n";
 
+    std::vector<Event> events;
+    GameState game_state;
+
     auto&& [player_id, sock] = connect_to_server(config);
     std::cout << "I got player_id: " << player_id << '\n';
+
+    {
+        sf::TcpSocket tcp_sock;
+        tcp_sock.connect(config.server_address, sock->getLocalPort());
+        while (true) {
+            sf::Packet pack;
+            auto status = tcp_sock.receive(pack);
+            if (status != sf::Socket::Status::Done)
+                break;
+            Event e;
+            pack >> e;
+            events.push_back(e);
+        }
+        tcp_sock.disconnect();
+    }
+    std::cout << "applying " << events.size() << " events\n";
+    game_state.apply_events(events);
+    events.clear();
+
 
 	unsigned window_width = 1024;
 	unsigned window_height = 1024;
 
 	sf::RenderWindow window(sf::VideoMode(window_width, window_height), "SFML works!");
 
-    GameState game_state;
     GameDrawer game_drawer;
 	game_drawer.fill_dirt(window);
 
-    std::vector<Event> events;
 
 	sf::Clock delta_clock;
 	float dt = 0.0f;

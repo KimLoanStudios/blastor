@@ -170,12 +170,24 @@ struct Server {
             .content = response,
         };
 
+        // XDDDDDDDDDDDDDDD
+        sf::TcpListener listener;
+        listener.listen(addr.second);
+
         send_event(event, addr);
 
+        sf::TcpSocket ts;
+        listener.accept(ts);
+
         std::cout << "    len of stream = " << all_events.size() << std::endl;
+        sf::Packet pack;
         for (auto &&old_event : all_events) {
-            send_event(old_event, addr);
+            pack.clear();
+            pack << old_event;
+            ts.send(pack);
         }
+        ts.disconnect();
+        listener.close();
     }
 
     void handle_event(HelloResponse, SockAddr addr) {
