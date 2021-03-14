@@ -13,6 +13,7 @@ struct GameDrawer {
 	sf::Sprite dirt;
 	sf::Texture dirt_tex;
 	sf::Color bg_color;
+	sf::Font font;
 
 	void fill_dirt(sf::RenderWindow& window)
 	{
@@ -67,6 +68,7 @@ struct GameDrawer {
 
 		dirt_tex.update((unsigned char*)pixels);
 		dirt.setTexture(dirt_tex);
+		font.loadFromFile("assets/cs.ttf");
 
 		dirt.setPosition(0, 0);
 
@@ -83,50 +85,62 @@ struct GameDrawer {
 		//NOTE(Stanisz): background
 		window.draw(dirt);
 			
-
-        for(auto&& [player_id, player] : game_state.players) {
-			shape.setFillColor(sf::Color::Green);
-			shape.setScale(1.0f, 1.0f);
-
-			//NOTE(Stanisz): head
-            shape.setPosition(player.pos);
-			shape.setRadius(20.0f);
-			shape.setOrigin(20.f, 20.f);
-            window.draw(shape);
-			
-			//NOTE(Stanisz): arms
-			//TODO: arms should be oriented around the facing direction
-
-			auto ortho = vec2f(player.look_dir.y, -player.look_dir.x);
-            shape.setPosition(player.pos + 15.0f * player.look_dir + 15.0f * ortho);
-			shape.setRadius(10.0f);
-			shape.setOrigin(10, 10);
-            window.draw(shape);
-            shape.setPosition(player.pos + 15.0f * player.look_dir - 15.0f * ortho);
-			shape.setRadius(10.0f);
-			shape.setOrigin(10, 10);
-            window.draw(shape);
-
-			sf::Font font;
-			font.loadFromFile("assets/cs.ttf");
-
-			sf::Text text("Pizdusia", font);
-			text.setCharacterSize(30);
-			text.setFillColor(sf::Color::Black);
-			text.setPosition(player.pos + vec2f(-60.0f, -60.0f));
+	
+		if (game_state.players[player_id].dead)
+		{
+			sf::Text text("Very dead!\nPress R xd", font);
+			text.setCharacterSize(120);
+			text.setFillColor(sf::Color::Red);
+			text.setPosition(0, 0);
 
 			window.draw(text);
-        }
-
-
-
-        for(auto&& [bullet_id, bullet] : game_state.bullets) {
-			//shape.setScale(0.5f, 2.0f);
-			shape.setPosition(bullet.pos);
-			shape.setFillColor(sf::Color(255, 0, 0, 255));
-			window.draw(shape);
 		}
+		else
+		{
+			for(auto&& [player_id, player] : game_state.players) {
+				shape.setFillColor(sf::Color::Green);
+				shape.setScale(1.0f, 1.0f);
+				
+				if (player.dead) continue;
 
+				//NOTE(Stanisz): head
+				shape.setPosition(player.pos);
+				shape.setRadius(20.0f);
+				shape.setOrigin(20.f, 20.f);
+				window.draw(shape);
+				
+				//NOTE(Stanisz): arms
+				//TODO: arms should be oriented around the facing direction
+
+				auto ortho = vec2f(player.look_dir.y, -player.look_dir.x);
+				shape.setPosition(player.pos + 15.0f * player.look_dir + 15.0f * ortho);
+				shape.setRadius(10.0f);
+				shape.setOrigin(10, 10);
+				window.draw(shape);
+				shape.setPosition(player.pos + 15.0f * player.look_dir - 15.0f * ortho);
+				shape.setRadius(10.0f);
+				shape.setOrigin(10, 10);
+				window.draw(shape);
+
+
+				sf::Text text("Pizdusia", font);
+				text.setCharacterSize(30);
+				text.setFillColor(sf::Color::Black);
+				text.setPosition(player.pos + vec2f(-60.0f, -60.0f));
+
+				window.draw(text);
+			}
+
+
+
+			for(auto&& [bullet_id, bullet] : game_state.bullets) {
+				//shape.setScale(0.5f, 2.0f);
+				shape.setPosition(bullet.pos);
+				shape.setFillColor(sf::Color(255, 0, 0, 255));
+				window.draw(shape);
+			}
+
+		}
         window.display();
     }
 
