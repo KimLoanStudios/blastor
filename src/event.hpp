@@ -27,6 +27,7 @@ sf::Packet& operator >>(sf::Packet& packet, PlayerPos& p);
 
 struct BulletShot {
     u64 bullet_id;
+    u64 owner_id;
     vec2f pos;
     vec2f direction;
 };

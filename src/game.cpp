@@ -196,7 +196,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
         Event stateevent = Event  {
             .tick = 0,
             .content = ps
-        };        
+        };
 
         my_events.push_back(stateevent);
     }
@@ -220,6 +220,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
             .tick = 3,
             .content = BulletShot {
                 .bullet_id = bullet_id,
+                .owner_id = player_id,
                 .pos = bullet_pos,
                 .direction = look_dir
             }

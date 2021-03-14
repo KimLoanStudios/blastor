@@ -111,7 +111,7 @@ struct Server {
                     .tick = tick,
                     .content = removal,
                 };
-                std::cout << "removing id = " << info.id << " tick " << tick << " last " << info.tick_of_last_event << std::endl;
+                std::cout << "removing player with id = " << info.id << " tick " << tick << " last " << info.tick_of_last_event << std::endl;
 
                 events.push_back(event);
             };
@@ -201,15 +201,14 @@ struct Server {
             .content = pp,
         };
 
+        if (peers.id_to_addr.find(pp.player_id) == peers.id_to_addr.end())
+            return;
         peers.keep_peer_alive(tick, pp.player_id);
 
         events.push_back(event);
     }
 
-    void handle_event(BulletShot bs, SockAddr addr) {
-        std::cout << "received bullet shot\n" <<
-            "    addr = " << addr.first << ":" << addr.second << std::endl;
-
+    void handle_event(BulletShot bs, SockAddr) {
         auto event = Event {
             .tick = tick,
             .content = bs,
@@ -275,7 +274,7 @@ struct Server {
 
     void logic() {
         for (auto &&[id, bullet] : game_state.bullets) {
-            collide_with_players(bullet);
+            collide_with_players(bullet, id);
             //std::cout << "bullet id = " << id << std::endl;
             auto new_position = bullet.pos + bullet.direction * BULLET_SPEED;
 
@@ -302,7 +301,7 @@ struct Server {
         }
     }
 
-    void collide_with_players(const Bullet& b) {
+    void collide_with_players(const Bullet& b, u64 bullet_id) {
         for (auto &&[id, player] : game_state.players) {
             if (player.dead)
                 continue;
@@ -317,16 +316,43 @@ struct Server {
                 auto state_change = PlayerStatsChange {
                     .player_id = id,
                     .dead = true,
-                    .score = player.score - 1,
+                    .score = player.score,
                     .name = player.name,
                 };
+                push_event(state_change);
 
-                events.push_back(Event{
-                    .tick = tick,
-                    .content = state_change,
-                });
+                auto bullet_remove = BulletRemove {
+                    .bullet_id = bullet_id,
+                };
+                push_event(bullet_remove);
+
+                increase_score(b.owner_id);
             }
         }
+    }
+
+    void increase_score(u64 player_id) {
+        if (game_state.players.count(player_id) == 0)
+            return;
+
+        Player& player = game_state.players[player_id];
+
+        auto state_change = PlayerStatsChange {
+            .player_id = player_id,
+            .dead = player.dead,
+            .score = player.score + 1,
+            .name = player.name,
+        };
+
+        push_event(state_change);
+    }
+
+    template<typename E>
+    void push_event(E event) {
+        events.push_back(Event{
+            .tick = tick,
+            .content = event,
+        });
     }
 };
 

@@ -32,10 +32,10 @@ sf::Packet& operator >>(sf::Packet& packet, PlayerPos& p) {
 }
 
 sf::Packet& operator <<(sf::Packet& packet, const BulletShot& b) {
-    return packet << b.pos << b.direction << b.bullet_id;
+    return packet << b.pos << b.direction << b.bullet_id << b.owner_id;
 }
 sf::Packet& operator >>(sf::Packet& packet, BulletShot& b) {
-    return packet >> b.pos >> b.direction >> b.bullet_id;
+    return packet >> b.pos >> b.direction >> b.bullet_id >> b.owner_id;
 }
 
 sf::Packet& operator <<(sf::Packet& packet, const BulletPos& b) {

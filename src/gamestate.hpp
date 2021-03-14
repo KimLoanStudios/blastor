@@ -17,6 +17,7 @@ struct Player {
 };
 
 struct Bullet {
+    u64 owner_id;
     vec2f pos;
     vec2f direction;
 };
@@ -42,6 +43,7 @@ struct GameState {
             if (std::holds_alternative<BulletShot>(event.content)) {
                 auto shot = std::get<BulletShot>(event.content);
                 bullets[shot.bullet_id] = Bullet {
+                    .owner_id = shot.owner_id,
                     .pos = shot.pos,
                     .direction = shot.direction,
                 };
@@ -58,12 +60,16 @@ struct GameState {
             if (std::holds_alternative<PlayerStatsChange>(event.content)) {
                 auto s = std::get<PlayerStatsChange>(event.content);
 
-                std::cout << "Got a state change" << std::endl;
-
                 Player& player = players[s.player_id];
                 player.dead = s.dead;
                 player.score = s.score;
                 player.name = s.name;
+
+                std::cout << "player state change\n"
+                    << "    id = " << s.player_id << "\n"
+                    << "    score = " << s.score << "\n"
+                    << "    dead = " << s.dead << "\n"
+                    << "    name = " << s.name << std::endl;
             }
         }
     }
