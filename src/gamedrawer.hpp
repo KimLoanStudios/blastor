@@ -28,7 +28,7 @@ struct GameDrawer {
 		auto win_sz = window.getSize();
 		dirt_tex.create(1024, 1024);
 
-		unsigned pixels_dimensions = dirt_tex.getSize().x * 
+		unsigned pixels_dimensions = dirt_tex.getSize().x *
 			dirt_tex.getSize().y;
 		unsigned pixels_size = pixels_dimensions * sizeof(unsigned);
 		unsigned *pixels = (unsigned *)malloc(pixels_size);
@@ -42,7 +42,7 @@ struct GameDrawer {
 		{
 			metaballs_positions[i].x = rand() % dirt_tex.getSize().x;
 			metaballs_positions[i].y = rand() % dirt_tex.getSize().y;
-			
+
 			metaballs_sizes[i] = 100 + rand() % 100;
 
 			metaballs_colors[i].r = rand() % 100 + 5;
@@ -61,7 +61,7 @@ struct GameDrawer {
 			for (unsigned j = 0; j < n_metaballs; ++j)
 			{
 				vec2f pixel_to_metaball_center = vec2f((float)x_pixel, (float)y_pixel) - metaballs_positions[j];
-				float length_p_meta = pixel_to_metaball_center.x * pixel_to_metaball_center.x + 
+				float length_p_meta = pixel_to_metaball_center.x * pixel_to_metaball_center.x +
 					pixel_to_metaball_center.y * pixel_to_metaball_center.y;
 				length_p_meta = sqrt(length_p_meta);
 
@@ -74,7 +74,7 @@ struct GameDrawer {
 					total_factor += factor;
 				}
 			}
-			
+
 			color = sf::Color(255 - total_color.r, 255 - total_color.g , total_color.b, 255 - total_factor);
 
 			pixels[i] = color.toInteger();
@@ -101,8 +101,8 @@ struct GameDrawer {
 
 		//NOTE(Stanisz): background
 		window.draw(dirt);
-			
-	
+
+
 		if (game_state.players[player_id].dead)
 		{
 			sf::Text text("Very dead!\nPress R xd", font);
@@ -126,7 +126,7 @@ struct GameDrawer {
 			for(auto&& [player_id, player] : game_state.players) {
 				shape.setFillColor(sf::Color::Green);
 				shape.setScale(1.0f, 1.0f);
-				
+
 				if (player.dead) continue;
 
 				//NOTE(Stanisz): head
@@ -134,7 +134,7 @@ struct GameDrawer {
 				shape.setRadius(20.0f);
 				shape.setOrigin(20.f, 20.f);
 				window.draw(shape);
-				
+
 				//NOTE(Stanisz): arms
 				//TODO: arms should be oriented around the facing direction
 
@@ -153,6 +153,15 @@ struct GameDrawer {
 				text.setCharacterSize(30);
 				text.setFillColor(sf::Color::Black);
 				text.setPosition(player.pos + vec2f(-60.0f, -60.0f));
+
+				window.draw(text);
+
+                text = sf::Text(std::to_string(player.score), font);
+
+				text.setCharacterSize(30);
+				text.setFillColor(sf::Color::Black);
+				text.setPosition(player.pos + vec2f(0.f, -4.f));
+				text.setOrigin(text.getLocalBounds().width/2.f, text.getLocalBounds().height/2.f);
 
 				window.draw(text);
 			}
@@ -174,6 +183,7 @@ struct GameDrawer {
 
 		}
 
+
 		std::string to_display = "Score:";
 		to_display += std::to_string(game_state.players[player_id].score);
 		sf::Text text(to_display, font);
@@ -181,7 +191,7 @@ struct GameDrawer {
 		text.setFillColor(sf::Color::Green);
 		text.setPosition(game_state.players[player_id].pos - vec2f(500, 500));
 
-		window.draw(text);
+		//window.draw(text);
         window.display();
     }
 
