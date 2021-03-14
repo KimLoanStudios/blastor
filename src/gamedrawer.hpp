@@ -161,9 +161,14 @@ struct GameDrawer {
 
 			for(auto&& [bullet_id, bullet] : game_state.bullets) {
 				//shape.setScale(0.5f, 2.0f);
+				u8 alpha = 255;
+				if(bullet.exist_secs > 5.0) {
+					alpha = 0;
+				}
+
 				shape.setRadius(7.5f);
 				shape.setPosition(bullet.pos);
-				shape.setFillColor(sf::Color(255, 0, 0, 255));
+				shape.setFillColor(sf::Color(255, 0, 0, alpha));
 				window.draw(shape);
 			}
 

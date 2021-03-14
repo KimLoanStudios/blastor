@@ -20,6 +20,8 @@ struct Bullet {
     u64 owner_id;
     vec2f pos;
     vec2f direction;
+    f32 create_secs;
+    f32 exist_secs;
 };
 
 struct Box {
@@ -36,6 +38,7 @@ struct GameState {
     std::unordered_map<u64, Player> players;
     std::unordered_map<u64, Bullet> bullets;
     std::unordered_map<u64, Box> boxes;
+    sf::Clock clock;
 
     void apply_events(const std::span<Event>& events) {
         for (auto&& event: events) {
@@ -57,6 +60,8 @@ struct GameState {
                     .owner_id = shot.owner_id,
                     .pos = shot.pos,
                     .direction = shot.direction,
+                    .create_secs = clock.getElapsedTime().asSeconds(),
+                    .exist_secs = 0,
                 };
             }
             if (std::holds_alternative<BulletPos>(event.content)) {
@@ -90,6 +95,10 @@ struct GameState {
                     .size = box_added.size,
                 };
             }
+        }
+
+        for(auto&& [bullet_id, bullet] : bullets) {
+            bullet.exist_secs = clock.getElapsedTime().asSeconds() - bullet.create_secs;
         }
     }
 
