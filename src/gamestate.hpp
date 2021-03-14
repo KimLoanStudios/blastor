@@ -22,9 +22,15 @@ struct Bullet {
     vec2f direction;
 };
 
+struct Box {
+    vec2f pos;
+    vec2f size;
+};
+
 struct GameState {
     std::unordered_map<u64, Player> players;
     std::unordered_map<u64, Bullet> bullets;
+    std::unordered_map<u64, Box> boxes;
 
     void apply_events(const std::span<Event>& events) {
         for (auto&& event: events) {
@@ -70,6 +76,14 @@ struct GameState {
                     << "    score = " << s.score << "\n"
                     << "    dead = " << s.dead << "\n"
                     << "    name = " << s.name << std::endl;
+            }
+            if(std::holds_alternative<BoxAdded>(event.content)) {
+                BoxAdded box_added = std::get<BoxAdded>(event.content);
+
+                boxes[box_added.box_id] = Box {
+                    .pos = box_added.pos,
+                    .size = box_added.size,
+                };
             }
         }
     }

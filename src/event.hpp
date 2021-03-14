@@ -63,6 +63,14 @@ struct PlayerStatsChange {
 sf::Packet& operator <<(sf::Packet& packet, const PlayerStatsChange& b);
 sf::Packet& operator >>(sf::Packet& packet, PlayerStatsChange& b);
 
+struct BoxAdded {
+    u64 box_id;
+    vec2f pos;
+    vec2f size;
+};
+sf::Packet& operator <<(sf::Packet& packet, const BoxAdded& b);
+sf::Packet& operator >>(sf::Packet& packet, BoxAdded& b);
+
 using EventVariant = std::variant<
     PlayerPos,
     BulletShot,
@@ -71,7 +79,8 @@ using EventVariant = std::variant<
     BulletPos,
     BulletRemove,
     PlayerRemove,
-    PlayerStatsChange
+    PlayerStatsChange,
+    BoxAdded
 >;
 
 struct Event {

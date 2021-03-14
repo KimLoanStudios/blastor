@@ -10,6 +10,7 @@ T lerp(const T& a, const T& b, float t)
 
 struct GameDrawer {
     sf::CircleShape shape;
+	sf::RectangleShape rect;
 	sf::Sprite dirt;
 	sf::Texture dirt_tex;
 	sf::Color bg_color;
@@ -106,6 +107,14 @@ struct GameDrawer {
 		}
 		else
 		{
+			for(auto&& [box_id, box] : game_state.boxes) {
+				rect.setSize(box.size);
+				rect.setPosition(box.pos);
+				rect.setFillColor(sf::Color::Blue);
+
+				window.draw(rect);
+			}
+
 			for(auto&& [player_id, player] : game_state.players) {
 				shape.setFillColor(sf::Color::Green);
 				shape.setScale(1.0f, 1.0f);

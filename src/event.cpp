@@ -66,6 +66,13 @@ sf::Packet& operator >>(sf::Packet& packet, PlayerStatsChange& b) {
     return packet >> b.player_id >> b.dead >> b.score >> b.name;
 }
 
+sf::Packet& operator <<(sf::Packet& packet, const BoxAdded& b) {
+    return packet << b.box_id << b.pos << b.size;
+}
+sf::Packet& operator >>(sf::Packet& packet, BoxAdded& b) {
+    return packet >> b.box_id >> b.pos >> b.size;
+}
+
 sf::Packet& operator <<(sf::Packet& packet, const Event& event) {
     packet << event.tick;
 
@@ -129,6 +136,12 @@ sf::Packet& operator >>(sf::Packet& packet, Event& event) {
             PlayerStatsChange h;
             packet >> h;
             event.content = h;
+            break;
+        }
+        case 8: {
+            BoxAdded b;
+            packet >> b;
+            event.content = b;
             break;
         }
     }
@@ -251,6 +264,30 @@ static void test_player_stats_change_event() {
     assert(std::get<PlayerStatsChange>(deser.content).name == "e");
 }
 
+static void test_box_added_event() {
+    BoxAdded box_added;
+    box_added.box_id = 456;
+    box_added.pos = vec2f(6, 7);
+    box_added.size = vec2f(1, 8);
+
+    Event e;
+    e.tick = 5454;
+    e.content = box_added;
+
+    // serialize
+    sf::Packet pkt;
+    pkt << e;
+
+    // deserialize
+    Event deser;
+    pkt >> deser;
+
+    assert(deser.tick == 5454);
+    assert(std::get<BoxAdded>(deser.content).box_id == 456);
+    assert(std::get<BoxAdded>(deser.content).pos == vec2f(6, 7));
+    assert(std::get<BoxAdded>(deser.content).size == vec2f(1, 8));
+}
+
 void test_event_serialization() {
     std::cout << "testing event [de]serialization" << std::endl;
     test_player_pos_event();
@@ -258,6 +295,7 @@ void test_event_serialization() {
     test_bullet_remove_event();
     test_player_remove_event();
     test_player_stats_change_event();
+    test_box_added_event();
     std::cout << "  event [de]serialization ok" << std::endl;
 }
 

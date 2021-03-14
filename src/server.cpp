@@ -81,6 +81,8 @@ struct Server {
     Server(u16 _port) : port(_port) {}
 
     void run() {
+        generate_boxes();
+
         if (sock.bind(port) != sf::Socket::Done) {
             std::cerr << "Could not bind socket to port " << port << std::endl;
             return;
@@ -235,6 +237,9 @@ struct Server {
         events.push_back(event);
     }
 
+    void handle_event(BoxAdded, SockAddr) {
+    }
+
     void send_event(Event event, SockAddr to) {
         sf::Packet pkt;
         pkt << event;
@@ -353,6 +358,39 @@ struct Server {
             .tick = tick,
             .content = event,
         });
+    }
+    
+    void generate_boxes() {
+        srand(time(NULL));
+
+        const int min_boxes = 8;
+        const int max_boxes = 16;
+        const int min_box_size = 50;
+        const int max_box_size = 200;
+
+        auto genRange = [](int min, int max) -> int {
+            return min + rand() % (max - min);
+        };
+
+        int num_boxes = genRange(min_boxes, max_boxes);
+
+        for(int b = 0; b < num_boxes; b++) {
+            vec2f box_pos = vec2f(rand() % 1024, rand() % 1024);
+
+            vec2f box_size = vec2f(genRange(min_box_size, max_box_size), 
+                                   genRange(min_box_size, max_box_size));
+
+            BoxAdded box_added = BoxAdded {
+                .box_id = u64(b),
+                .pos = box_pos,
+                .size = box_size,
+            };
+
+            all_events.push_back(Event {
+                .tick = 0,
+                .content = box_added,
+            });
+        }
     }
 };
 
