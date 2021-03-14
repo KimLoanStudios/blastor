@@ -318,7 +318,7 @@ struct Server {
             auto diff = player_pos - bullet_pos;
             auto distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
-            if (distance < 15.f) {
+            if (distance < 27.5f) {
                 auto state_change = PlayerStatsChange {
                     .player_id = id,
                     .dead = true,
@@ -332,7 +332,11 @@ struct Server {
                 };
                 push_event(bullet_remove);
 
-                increase_score(b.owner_id);
+                i32 score_d = 1;
+                if (b.owner_id == id) {
+                    score_d = -1;
+                }
+                increase_score(b.owner_id, score_d);
             }
         }
     }
@@ -352,7 +356,7 @@ struct Server {
         }
     }
 
-    void increase_score(u64 player_id) {
+    void increase_score(u64 player_id, i32 score_d) {
         if (game_state.players.count(player_id) == 0)
             return;
 
@@ -361,7 +365,7 @@ struct Server {
         auto state_change = PlayerStatsChange {
             .player_id = player_id,
             .dead = player.dead,
-            .score = player.score + 1,
+            .score = player.score + score_d,
             .name = player.name,
         };
 
