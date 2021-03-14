@@ -145,7 +145,7 @@ struct GameDrawer {
     }
 
 	void create_view(sf::RenderWindow& window, vec2f player_pos) {
-		f32 view_width = 1000;
+		f32 view_width = 1200;
 		f32 view_height = f32(window.getSize().y)/f32(window.getSize().x) * view_width;
 
 		f32 view_x = player_pos.x - view_width/2;
