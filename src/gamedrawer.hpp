@@ -13,12 +13,14 @@ struct GameDrawer {
 	sf::RectangleShape rect;
 	sf::Sprite dirt;
 	sf::Texture dirt_tex;
+	sf::Texture box_tex;
 	sf::Color bg_color;
 	sf::Font font;
 
 	void fill_dirt(sf::RenderWindow& window)
 	{
 		bg_color = sf::Color(0xfa, 0xba, 0xba, 0xfa);
+		box_tex.loadFromFile("assets/box.jpg", sf::Rect(0, 0, 400, 400));
 
 		auto win_sz = window.getSize();
 		dirt_tex.create(1024, 1024);
@@ -42,7 +44,7 @@ struct GameDrawer {
 
 			metaballs_colors[i].r = rand() % 100 + 5;
 			metaballs_colors[i].g = rand() % 100 + 10;
-			metaballs_colors[i].b = rand() % 100 + 40;
+			metaballs_colors[i].b = rand() % 100 + 5;
 		}
 
 		for (unsigned i = 0; i < pixels_dimensions; ++i)
@@ -81,6 +83,8 @@ struct GameDrawer {
 
 		dirt.setPosition(0, 0);
 
+
+
 		free(pixels);
 	}
 
@@ -108,9 +112,9 @@ struct GameDrawer {
 		else
 		{
 			for(auto&& [box_id, box] : game_state.boxes) {
+				rect.setTexture(&box_tex);
 				rect.setSize(box.size);
 				rect.setPosition(box.pos);
-				rect.setFillColor(sf::Color::Blue);
 
 				window.draw(rect);
 			}
