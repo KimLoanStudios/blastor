@@ -186,7 +186,9 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::R) && is_dead) {
         game_state.players[player_id].dead = false;
 
-        game_state.players[player_id].pos = vec2f(rand() % 1024, rand() % 1024);
+        do {
+            game_state.players[player_id].pos = vec2f(rand() % 1024, rand() % 1024);
+        } while(game_state.is_inside_box(game_state.players[player_id].pos));
 
         PlayerStatsChange ps = PlayerStatsChange {
             .player_id = player_id,
@@ -214,7 +216,8 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 		});
     }
 
-	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024 && !is_dead)
+	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024 
+        && !is_dead && !game_state.is_inside_box(my_new_pos))
 	{
 		my_events.push_back(Event {
 			.tick = 3,

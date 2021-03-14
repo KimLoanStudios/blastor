@@ -412,6 +412,30 @@ struct Server {
             all_events.push_back(event);
         }
 
+        int border_width = 80;
+        std::vector<std::pair<vec2f, vec2f>> border_boxes = {
+            {vec2f(-border_width, -border_width), vec2f(1024+2*border_width, border_width)}, // up
+            {vec2f(-border_width, 0), vec2f(border_width, 1024)}, // left
+            {vec2f(1024, 0), vec2f(border_width, 1024)}, // right
+            {vec2f(-border_width, 1024), vec2f(1024+2*border_width, border_width)} // down
+        };
+
+        int next_box_id = num_boxes;
+        for(auto&& [box_pos, box_size]: border_boxes) {
+            BoxAdded box_added = BoxAdded {
+                .box_id = u64(next_box_id++),
+                .pos = box_pos,
+                .size = box_size,
+            };
+
+            auto event = Event {
+                .tick = 0,
+                .content = box_added,
+            };
+            box_events.push_back(event);
+            all_events.push_back(event);   
+        }
+
         game_state.apply_events(box_events);
     }
 };

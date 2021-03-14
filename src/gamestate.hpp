@@ -92,4 +92,14 @@ struct GameState {
             }
         }
     }
+
+    bool is_inside_box(vec2f pos) {
+        for(auto&& [box_id, box] : boxes) {
+            if(box.is_inside(pos)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
