@@ -27,16 +27,21 @@ struct GameDrawer {
 		unsigned pixels_size = pixels_dimensions * sizeof(unsigned);
 		unsigned *pixels = (unsigned *)malloc(pixels_size);
 
-		const int n_metaballs = 12;
+		const int n_metaballs = 30;
 		vec2f metaballs_positions[n_metaballs];
 		unsigned metaballs_sizes[n_metaballs];
+		sf::Color metaballs_colors[n_metaballs];
 
 		for (int i = 0; i < n_metaballs; ++i)
 		{
 			metaballs_positions[i].x = rand() % dirt_tex.getSize().x;
 			metaballs_positions[i].y = rand() % dirt_tex.getSize().y;
 			
-			metaballs_sizes[i] = 200 + rand() % 300;
+			metaballs_sizes[i] = 100 + rand() % 100;
+
+			metaballs_colors[i].r = rand() % 100 + 5;
+			metaballs_colors[i].g = rand() % 100 + 10;
+			metaballs_colors[i].b = rand() % 100 + 40;
 		}
 
 		for (unsigned i = 0; i < pixels_dimensions; ++i)
@@ -44,8 +49,9 @@ struct GameDrawer {
 			unsigned x_pixel = i % dirt_tex.getSize().x;
 			unsigned y_pixel = i / dirt_tex.getSize().y;
 			sf::Color color = bg_color;
-
 			float total_factor = 0;
+
+			sf::Color total_color(0, 0, 0, 0);
 			for (unsigned j = 0; j < n_metaballs; ++j)
 			{
 				vec2f pixel_to_metaball_center = vec2f((float)x_pixel, (float)y_pixel) - metaballs_positions[j];
@@ -55,13 +61,15 @@ struct GameDrawer {
 
 				if (length_p_meta < (float)metaballs_sizes[j])
 				{
-					float factor = length_p_meta / (float)metaballs_sizes[j];
+					float factor = length_p_meta / ( 2.0f * metaballs_sizes[j] ) ;
+					total_color.r += factor * factor * metaballs_colors[j].r;
+					total_color.g += factor * factor * metaballs_colors[j].g;
+					total_color.b += factor * factor * metaballs_colors[j].b;
 					total_factor += factor;
 				}
 			}
 			
-			unsigned char alpha = 255 - lerp(0, 255, total_factor);
-			color = sf::Color(bg_color.r, bg_color.g, bg_color.b, alpha);
+			color = sf::Color(255 - total_color.r, 255 - total_color.g , total_color.b, 255 - total_factor);
 
 			pixels[i] = color.toInteger();
 		}
@@ -91,9 +99,10 @@ struct GameDrawer {
 			sf::Text text("Very dead!\nPress R xd", font);
 			text.setCharacterSize(120);
 			text.setFillColor(sf::Color::Red);
-			text.setPosition(0, 0);
+			text.setPosition(10000, 10000);
 
 			window.draw(text);
+			game_state.players[player_id].pos = vec2f(10300.0f, 10200.0f);
 		}
 		else
 		{
