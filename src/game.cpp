@@ -32,7 +32,7 @@ int run_game(GameConfig& config) {
 
     {
         sf::TcpSocket tcp_sock;
-        tcp_sock.connect(config.server_address, sock->getLocalPort());
+        tcp_sock.connect(config.server_address, config.server_port + 1);
         while (true) {
             sf::Packet pack;
             auto status = tcp_sock.receive(pack);

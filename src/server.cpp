@@ -70,6 +70,7 @@ struct Peers {
 struct Server {
     sf::UdpSocket sock;
     u16 port;
+    sf::TcpListener listener;
 
     GameState game_state;
     std::vector<Event> events;
@@ -85,6 +86,11 @@ struct Server {
 
         if (sock.bind(port) != sf::Socket::Done) {
             std::cerr << "Could not bind socket to port " << port << std::endl;
+            return;
+        }
+
+        if (listener.listen(port + 1) != sf::Socket::Done) {
+            std::cerr << "Could not listen on port " << port + 1 << std::endl;
             return;
         }
 
@@ -173,9 +179,6 @@ struct Server {
         };
 
         // XDDDDDDDDDDDDDDD
-        sf::TcpListener listener;
-        listener.listen(addr.second);
-
         send_event(event, addr);
 
         sf::TcpSocket ts;
