@@ -216,7 +216,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
 		});
     }
 
-	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024 
+	if (my_new_pos.x >= 0 && my_new_pos.x < 1024 && my_new_pos.y >= 0 && my_new_pos.y < 1024
         && !is_dead && !game_state.is_inside_box(my_new_pos))
 	{
 		my_events.push_back(Event {
@@ -235,7 +235,7 @@ std::vector<Event> handle_input(GameState& game_state, sf::RenderWindow& window,
         my_events.push_back(Event {
             .tick = 3,
             .content = BulletShot {
-                .bullet_id = bullet_id,
+                .bullet_id = bullet_id * 32,
                 .owner_id = player_id,
                 .pos = bullet_pos,
                 .direction = look_dir

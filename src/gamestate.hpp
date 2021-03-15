@@ -32,6 +32,12 @@ struct Box {
         return point.x >= pos.x && point.x <= pos.x + size.x
             && point.y >= pos.y && point.y <= pos.y + size.y;
     }
+
+    vec2f bounce(vec2f dir, vec2f point) {
+        if (point.x <= pos.x || point.x >= pos.x + size.x)
+            return vec2f(-dir.x, dir.y);
+        return vec2f(dir.x, -dir.y);
+    }
 };
 
 struct GameState {

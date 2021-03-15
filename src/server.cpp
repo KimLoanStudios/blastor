@@ -354,6 +354,18 @@ struct Server {
                     .bullet_id = bullet_id,
                 };
                 push_event(bullet_remove);
+
+                if (bullet_id % 32 < 4) {
+                    vec2f dir = box.bounce(b.direction, b.pos - BULLET_SPEED * b.direction);
+                    auto shot = BulletShot {
+                        .bullet_id = bullet_id + 1,
+                        .owner_id = b.owner_id,
+                        .pos = b.pos + BULLET_SPEED * dir,
+                        .direction = dir,
+                    };
+
+                    push_event(shot);
+                }
             }
         }
     }

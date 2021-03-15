@@ -177,7 +177,12 @@ struct GameDrawer {
 
 				shape.setRadius(7.5f);
 				shape.setPosition(bullet.pos);
-				shape.setFillColor(sf::Color(255, 0, 0, alpha));
+                sf::Color colors[] = {
+                    sf::Color(255, 50, 100, alpha),
+                    sf::Color(100, 255, 50, alpha),
+                    sf::Color(100, 50, 255, alpha),
+                };
+				shape.setFillColor(colors[bullet.owner_id % 3]);
 				window.draw(shape);
 			}
 
