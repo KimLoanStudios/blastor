@@ -192,7 +192,6 @@ struct Server {
             ts.send(pack);
         }
         ts.disconnect();
-        listener.close();
     }
 
     void handle_event(HelloResponse, SockAddr addr) {
@@ -402,7 +401,7 @@ struct Server {
         std::vector<Event> box_events;
 
         for(int b = 0; b < num_boxes; b++) {
-            vec2f box_pos = vec2f(genRange(min_box_pos, max_box_pos), 
+            vec2f box_pos = vec2f(genRange(min_box_pos, max_box_pos),
                                   genRange(min_box_pos, max_box_pos));
 
             vec2f box_size = vec2f(genRange(min_box_size, max_box_size),
@@ -443,7 +442,7 @@ struct Server {
                 .content = box_added,
             };
             box_events.push_back(event);
-            all_events.push_back(event);   
+            all_events.push_back(event);
         }
 
         game_state.apply_events(box_events);

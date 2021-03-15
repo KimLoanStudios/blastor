@@ -1,5 +1,8 @@
 # Blastor
 
+### Watch gameplay:
+https://youtu.be/k_JylmxKPPw
+
 ### Get blasted:
 * On Linux:
     * Install `sfml`:
