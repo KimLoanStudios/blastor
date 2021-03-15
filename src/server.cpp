@@ -1,5 +1,6 @@
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <set>
 #include <cmath>
 #include <functional>
 #include <vector>
@@ -80,6 +81,7 @@ struct Server {
     u32 tick = 0;
 
     Server(u16 _port) : port(_port) {}
+    ~Server() {listener.close();}
 
     void run() {
         generate_boxes();
@@ -136,6 +138,8 @@ struct Server {
             apply_events(e.subspan(number_of_events_received));
 
             flush_events();
+
+            clear_old_events();
 
             auto elapsed = clock.restart().asSeconds();
             auto toSleep = std::max(TICK_TIME - elapsed, 0.f);
@@ -208,6 +212,14 @@ struct Server {
         if (peers.id_to_addr.find(pp.player_id) == peers.id_to_addr.end())
             return;
         peers.keep_peer_alive(tick, pp.player_id);
+
+        std::erase_if(all_events, [&](const Event& e) {
+            auto id = get_event_id(e);
+
+            if (std::holds_alternative<PlayerPos>(e.content) && id == pp.player_id)
+                return true;
+            return false;
+        });
 
         events.push_back(event);
     }
@@ -355,7 +367,7 @@ struct Server {
                 };
                 push_event(bullet_remove);
 
-                if (bullet_id % 32 < 4) {
+                if (bullet_id % 32 < 3) {
                     vec2f dir = box.bounce(b.direction, b.pos - BULLET_SPEED * b.direction);
                     auto shot = BulletShot {
                         .bullet_id = bullet_id + 1,
@@ -458,6 +470,45 @@ struct Server {
         }
 
         game_state.apply_events(box_events);
+    }
+
+    void clear_old_events() {
+        std::set<u64> to_remove;
+        for (auto &&e : all_events) {
+            if (std::holds_alternative<BulletRemove>(e.content) ||
+                std::holds_alternative<PlayerRemove>(e.content)) {
+                to_remove.insert(get_event_id(e));
+            }
+        }
+
+        std::erase_if(all_events, [&](const Event& e) {
+            auto id = get_event_id(e);
+            if (to_remove.count(id) > 0)
+                return true;
+            return false;
+        });
+    }
+
+    u64 get_event_id(const Event& e) {
+        if (std::holds_alternative<BulletPos>(e.content)) {
+            return std::get<BulletPos>(e.content).bullet_id;
+        }
+        if (std::holds_alternative<BulletShot>(e.content)) {
+            return std::get<BulletShot>(e.content).bullet_id;
+        }
+        if (std::holds_alternative<BulletRemove>(e.content)) {
+            return std::get<BulletRemove>(e.content).bullet_id;
+        }
+        if (std::holds_alternative<PlayerPos>(e.content)) {
+            return std::get<PlayerPos>(e.content).player_id;
+        }
+        if (std::holds_alternative<PlayerRemove>(e.content)) {
+            return std::get<PlayerRemove>(e.content).player_id;
+        }
+        if (std::holds_alternative<PlayerStatsChange>(e.content)) {
+            return std::get<PlayerStatsChange>(e.content).player_id;
+        }
+        return 0;
     }
 };
 
